@@ -1,3 +1,4 @@
+import { COUNTRY_STATES, COUNTRIES } from "../../data/addressData";
 import { useEffect, useState } from "react";
 
 const EMPTY_FORM = {
@@ -27,28 +28,19 @@ const AddressForm = ({
   useEffect(() => {
     if (initialData) {
       setForm({
-        address_type:
-          initialData.address_type ||
-          initialData.addressType ||
-          "",
-        address:
-          initialData.address || "",
-        gst_number:
-          initialData.gst_number ||
-          initialData.gstNumber ||
-          "",
-        city:
-          initialData.city || "",
-        state:
-          initialData.state || "",
-        pincode:
-          initialData.pincode
-            ? String(initialData.pincode)
-            : "",
-        country:
-          initialData.country ||
-          defaultCountry ||
-          "India",
+        address_type: initialData.address_type || initialData.addressType || "",
+
+        address: initialData.address || "",
+
+        gst_number: initialData.gst_number || initialData.gstNumber || "",
+
+        city: initialData.city || "",
+
+        state: initialData.state || "",
+
+        pincode: initialData.pincode ? String(initialData.pincode) : "",
+
+        country: initialData.country || defaultCountry || "India",
       });
     } else {
       setForm({
@@ -65,15 +57,14 @@ const AddressForm = ({
 
     setForm((prev) => ({
       ...prev,
-      [name]:
-        name === "pincode"
-          ? value.replace(/\D/g, "").slice(0, 6)
-          : value,
+      [name]: name === "pincode" ? value.replace(/\D/g, "").slice(0, 6) : value,
+      ...(name === "country" ? { state: "" } : {}),
     }));
 
     setErrors((prev) => ({
       ...prev,
       [name]: "",
+      ...(name === "country" ? { state: "" } : {}),
     }));
   };
 
@@ -81,51 +72,37 @@ const AddressForm = ({
     const newErrors = {};
 
     if (!form.address_type.trim()) {
-      newErrors.address_type =
-        "Address type is required";
+      newErrors.address_type = "Address type is required";
     }
 
     if (!form.address.trim()) {
-      newErrors.address =
-        "Full address is required";
+      newErrors.address = "Full address is required";
     }
 
     if (!form.city.trim()) {
-      newErrors.city =
-        "City is required";
+      newErrors.city = "City is required";
     }
 
     if (!form.state.trim()) {
-      newErrors.state =
-        "State is required";
+      newErrors.state = "State is required";
     }
 
     if (!form.pincode.trim()) {
-      newErrors.pincode =
-        "Pincode is required";
+      newErrors.pincode = "Pincode is required";
     } else if (!/^\d{6}$/.test(form.pincode.trim())) {
-      newErrors.pincode =
-        "Pincode must be 6 digits";
+      newErrors.pincode = "Pincode must be 6 digits";
     }
 
     if (!form.country.trim()) {
-      newErrors.country =
-        "Country is required";
+      newErrors.country = "Country is required";
     }
 
     if (form.gst_number.trim()) {
       const gstRegex =
         /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
 
-      if (
-        !gstRegex.test(
-          form.gst_number
-            .trim()
-            .toUpperCase(),
-        )
-      ) {
-        newErrors.gst_number =
-          "Enter a valid GST number";
+      if (!gstRegex.test(form.gst_number.trim().toUpperCase())) {
+        newErrors.gst_number = "Enter a valid GST number";
       }
     }
 
@@ -141,22 +118,20 @@ const AddressForm = ({
 
     onSave({
       ...form,
-      address_type:
-        form.address_type.trim(),
-      address:
-        form.address.trim(),
-      gst_number:
-        form.gst_number
-          .trim()
-          .toUpperCase(),
-      city:
-        form.city.trim(),
-      state:
-        form.state.trim(),
-      pincode:
-        form.pincode.trim(),
-      country:
-        form.country.trim(),
+
+      address_type: form.address_type.trim(),
+
+      address: form.address.trim(),
+
+      gst_number: form.gst_number.trim().toUpperCase(),
+
+      city: form.city.trim(),
+
+      state: form.state.trim(),
+
+      pincode: form.pincode.trim(),
+
+      country: form.country.trim(),
     });
   };
 
@@ -174,10 +149,10 @@ const AddressForm = ({
 
   const FieldError = ({ name }) =>
     errors[name] ? (
-      <p className="mt-1 text-xs text-deem-red">
-        {errors[name]}
-      </p>
+      <p className="mt-1 text-xs text-deem-red">{errors[name]}</p>
     ) : null;
+
+  const availableStates = COUNTRY_STATES[form.country] || [];
 
   return (
     <form
@@ -185,7 +160,6 @@ const AddressForm = ({
       className="rounded-2xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-700 dark:bg-[#0b0f14]"
     >
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-
         <div>
           <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-200">
             Address Type
@@ -197,15 +171,13 @@ const AddressForm = ({
             value={form.address_type}
             onChange={handleChange}
             placeholder="Office / Billing / Shipping"
-            className={inputClass(
-              errors.address_type,
-            )}
+            className={inputClass(errors.address_type)}
             disabled={loading}
           />
 
           <FieldError name="address_type" />
         </div>
-
+ 
         <div>
           <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-200">
             Pincode
@@ -219,15 +191,13 @@ const AddressForm = ({
             placeholder="Enter 6 digit pincode"
             inputMode="numeric"
             maxLength={6}
-            className={inputClass(
-              errors.pincode,
-            )}
+            className={inputClass(errors.pincode)}
             disabled={loading}
           />
 
           <FieldError name="pincode" />
         </div>
-
+ 
         <div>
           <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-200">
             Address
@@ -239,13 +209,61 @@ const AddressForm = ({
             value={form.address}
             onChange={handleChange}
             placeholder="Enter full address"
-            className={inputClass(
-              errors.address,
-            )}
+            className={inputClass(errors.address)}
             disabled={loading}
           />
 
           <FieldError name="address" />
+        </div>
+ 
+        <div>
+          <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-200">
+            Country
+          </label>
+
+          <select
+            name="country"
+            value={form.country}
+            onChange={handleChange}
+            className={inputClass(errors.country)}
+            disabled={loading}
+          >
+            <option value="">Select country</option>
+
+            {COUNTRIES.map((country) => (
+              <option key={country} value={country}>
+                {country}
+              </option>
+            ))}
+          </select>
+
+          <FieldError name="country" />
+        </div>
+ 
+        <div>
+          <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-200">
+            State
+          </label>
+
+          <select
+            name="state"
+            value={form.state}
+            onChange={handleChange}
+            className={inputClass(errors.state)}
+            disabled={loading || !form.country}
+          >
+            <option value="">
+              {form.country ? "Select state" : "Select country first"}
+            </option>
+
+            {availableStates.map((state) => (
+              <option key={state} value={state}>
+                {state}
+              </option>
+            ))}
+          </select>
+
+          <FieldError name="state" />
         </div>
 
         <div>
@@ -266,50 +284,10 @@ const AddressForm = ({
           <FieldError name="city" />
         </div>
 
-        <div>
-          <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-200">
-            State
-          </label>
-
-          <input
-            type="text"
-            name="state"
-            value={form.state}
-            onChange={handleChange}
-            placeholder="Enter state"
-            className={inputClass(errors.state)}
-            disabled={loading}
-          />
-
-          <FieldError name="state" />
-        </div>
-
-        <div>
-          <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-200">
-            Country
-          </label>
-
-          <input
-            type="text"
-            name="country"
-            value={form.country}
-            onChange={handleChange}
-            placeholder="Enter country"
-            className={inputClass(
-              errors.country,
-            )}
-            disabled={loading}
-          />
-
-          <FieldError name="country" />
-        </div>
-
         <div className="sm:col-span-2">
           <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-200">
             GST Number
-            <span className="ml-1 font-normal text-gray-400">
-              (Optional)
-            </span>
+            <span className="ml-1 font-normal text-gray-400">(Optional)</span>
           </label>
 
           <input
@@ -319,27 +297,21 @@ const AddressForm = ({
             onChange={handleChange}
             placeholder="Enter 15 digit GSTIN"
             maxLength={15}
-            className={inputClass(
-              errors.gst_number,
-            )}
+            className={inputClass(errors.gst_number)}
             disabled={loading}
           />
 
           <FieldError name="gst_number" />
         </div>
       </div>
-
+ 
       <div className="mt-5 flex items-center gap-3">
         <button
           type="submit"
           disabled={loading}
           className="h-10 rounded-xl bg-deem-blue px-5 text-sm font-medium text-white transition hover:bg-[#0f3a55] disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {loading
-            ? "Saving..."
-            : initialData
-              ? "Update"
-              : "Save"}
+          {loading ? "Saving..." : initialData ? "Update" : "Save"}
         </button>
 
         <button

@@ -271,25 +271,6 @@ const AddressSection = ({
         <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={fetchAddresses}
-            disabled={
-              loading || !customerId
-            }
-            title="Refresh addresses"
-            className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl border border-gray-200 text-gray-500 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
-          >
-            <RefreshCw
-              size={16}
-              className={
-                loading
-                  ? "animate-spin"
-                  : ""
-              }
-            />
-          </button>
-
-          <button
-            type="button"
             onClick={handleAdd}
             disabled={!customerId}
             className="flex h-10 cursor-pointer items-center gap-2 rounded-xl bg-deem-blue px-4 text-sm font-medium text-white transition hover:bg-[#0f3a55] disabled:cursor-not-allowed disabled:opacity-50"

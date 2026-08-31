@@ -11,11 +11,8 @@ export const customers = [
 
 export const paymentModes = [
   "Bank Transfer",
-  "Cash",
-  "Cheque",
-  "UPI",
-  "Credit Card",
-  "Other",
+  "UPI"
+   
 ];
 
 export const paymentStatuses = ["Paid", "Pending", "Partial"];
@@ -54,15 +51,11 @@ export const invoices = [
 
 export const paymentModeFilterOptions = [
   "Bank Transfer",
-  "Cash",
-  "Cheque",
-  "UPI",
-  "Credit Card",
-  "Other",
+  "UPI"
+ 
 ];
 
 export const paymentStatusFilterOptions = [
   "Paid",
-  "Pending",
-  "Partial",
+  "Pending"
 ];

@@ -13,14 +13,7 @@ const DURATIONS = [
   { label: "1 Month", months: 1 },
   { label: "2 Months", months: 2 },
   { label: "3 Months", months: 3 },
-  { label: "4 Months", months: 4 },
-  { label: "5 Months", months: 5 },
   { label: "6 Months", months: 6 },
-  { label: "7 Months", months: 7 },
-  { label: "8 Months", months: 8 },
-  { label: "9 Months", months: 9 },
-  { label: "10 Months", months: 10 },
-  { label: "11 Months", months: 11 },
   { label: "1 Year", months: 12 },
   { label: "2 Years", months: 24 },
   { label: "3 Years", months: 36 },
@@ -290,7 +283,7 @@ const handleSubmit = (e) => {
 
         <div>
           <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-200">
-            Renewal Date{" "}
+            Start/Renewal Date{" "}
             <span className="text-deem-red">*</span>
           </label>
 

@@ -177,9 +177,8 @@ const InvoiceForm = ({ onSubmit, onCancel, initialData }) => {
     (address) =>
       Number(address.id) === Number(formData.addressId),
   );
-
-  // DEEM registered state
-  const DEEM_STATE = "Gujarat";
+ 
+  const DEEM_STATE = "Punjab";
 
   const country =
     selectedAddress?.country?.trim()?.toLowerCase() || "";

@@ -263,25 +263,7 @@ const ServiceDetails = ({
         </h2>
 
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={fetchServices}
-            disabled={
-              loading || !customerId
-            }
-            title="Refresh services"
-            className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl border border-gray-200 text-gray-500 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
-          >
-            <RefreshCw
-              size={16}
-              className={
-                loading
-                  ? "animate-spin"
-                  : ""
-              }
-            />
-          </button>
-
+         
           <button
             type="button"
             onClick={handleAdd}

@@ -65,14 +65,7 @@ const InvoiceDetailView = ({ invoice, onClose }) => {
   const cgst = Number(invoice.cgst || 0);
   const sgst = Number(invoice.sgst || 0);
   const igst = Number(invoice.igst || 0);
-
-  /*
-   * The invoice design does NOT display subtotal.
-   *
-   * The database may still contain subtotal as the
-   * taxable/base amount, but it must never appear
-   * in the customer-facing invoice.
-   */
+ 
 
   const addressLines = [
     address.address,
@@ -116,7 +109,7 @@ const InvoiceDetailView = ({ invoice, onClose }) => {
 
   return (
     <>
-      {/* Print Styles */}
+ 
       <style>
         {`
           @media print {
@@ -224,10 +217,7 @@ const InvoiceDetailView = ({ invoice, onClose }) => {
           }
         `}
       </style>
-
-      {/* ================================
-          SCREEN MODAL
-          ================================ */}
+ 
 
       <div className="invoice-screen-only fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
         <div className="w-full max-w-2xl overflow-hidden rounded-2xl border border-[#e6edf2] bg-white shadow-xl dark:border-gray-700 dark:bg-[#161b22]">
@@ -317,15 +307,11 @@ const InvoiceDetailView = ({ invoice, onClose }) => {
           </div>
         </div>
       </div>
-
-      {/* ================================
-          PRINT / PDF CONTENT
-          ================================ */}
+ 
 
       <div className="invoice-print-content invoice-print-root bg-white text-gray-900">
         <div className="invoice-print-card mx-auto max-w-[800px] bg-white p-8">
 
-          {/* Header */}
           <div className="invoice-no-break border-b-2 border-gray-800 pb-5">
             <div className="flex items-start justify-between">
               <div>
@@ -349,8 +335,7 @@ const InvoiceDetailView = ({ invoice, onClose }) => {
               </div>
             </div>
           </div>
-
-          {/* Invoice Meta */}
+ 
           <div className="invoice-no-break mt-6 grid grid-cols-2 gap-8">
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-500">
@@ -374,8 +359,7 @@ const InvoiceDetailView = ({ invoice, onClose }) => {
               </p>
             </div>
           </div>
-
-          {/* Customer + Address */}
+ 
           <div className="invoice-no-break mt-7 grid grid-cols-2 gap-8 border-y border-gray-200 py-5">
             <div>
               <p className="text-[10px] font-bold uppercase tracking-wider text-gray-500">
@@ -432,8 +416,7 @@ const InvoiceDetailView = ({ invoice, onClose }) => {
               </div>
             </div>
           </div>
-
-          {/* Items */}
+ 
           <div className="invoice-no-break mt-7">
             <table className="invoice-print-table text-xs">
               <thead>
@@ -493,12 +476,10 @@ const InvoiceDetailView = ({ invoice, onClose }) => {
               </tbody>
             </table>
           </div>
-
-          {/* GST Summary */}
+ 
           <div className="invoice-no-break mt-6 invoice-print-total">
             <div className="invoice-print-total-inner">
-
-              {/* CGST */}
+ 
               <div className="flex items-center justify-between border-b border-gray-100 py-2 text-xs">
                 <span className="font-medium text-gray-600">
                   CGST 9%
@@ -508,8 +489,7 @@ const InvoiceDetailView = ({ invoice, onClose }) => {
                   <Amount value={cgst} />
                 </span>
               </div>
-
-              {/* SGST */}
+ 
               <div className="flex items-center justify-between border-b border-gray-100 py-2 text-xs">
                 <span className="font-medium text-gray-600">
                   SGST 9%
@@ -530,8 +510,7 @@ const InvoiceDetailView = ({ invoice, onClose }) => {
                   <Amount value={igst} />
                 </span>
               </div>
-
-              {/* Grand Total */}
+ 
               <div className="mt-2 flex items-center justify-between border-t-2 border-gray-800 pt-4">
                 <span className="text-sm font-bold text-gray-900">
                   Grand Total
@@ -546,8 +525,7 @@ const InvoiceDetailView = ({ invoice, onClose }) => {
               </div>
             </div>
           </div>
-
-          {/* Note */}
+ 
           {invoice.note && (
             <div className="invoice-no-break mt-8 border-t border-gray-200 pt-5">
               <p className="text-[10px] font-bold uppercase tracking-wider text-gray-500">
@@ -559,8 +537,7 @@ const InvoiceDetailView = ({ invoice, onClose }) => {
               </p>
             </div>
           )}
-
-          {/* Footer */}
+ 
           <div className="invoice-footer invoice-no-break mt-14 border-t border-gray-200 pt-5">
             <div className="flex items-end justify-between">
               <div>
