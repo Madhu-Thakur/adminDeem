@@ -1,0 +1,23 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-deem-red: #eb5141;
+  --color-deem-blue: #144667;
+
+  --color-deem-bg: #f5f7fa;
+  --color-deem-border: #e5e7eb;
+  --color-deem-text: #374151;
+  --color-deem-muted: #6b7280;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  min-height: 100vh;
+}
