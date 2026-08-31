@@ -7,7 +7,7 @@ const {
   deleteAddress,
 } = require("../models/addressModel");
 
- 
+// Create Address
 const addAddress = async (req, res) => {
   try {
     const {
@@ -15,7 +15,6 @@ const addAddress = async (req, res) => {
       address_type,
       address,
       gst_number,
-      city,
       state,
       pincode,
       country,
@@ -25,14 +24,13 @@ const addAddress = async (req, res) => {
       !customer_id ||
       !address_type ||
       !address ||
-      !city ||
       !state ||
       !pincode
     ) {
       return res.status(400).json({
         success: false,
         message:
-          "Customer ID, address type, address, city, state and pincode are required",
+          "Customer ID, address type, address, state and pincode are required",
       });
     }
 
@@ -41,7 +39,6 @@ const addAddress = async (req, res) => {
       address_type,
       address,
       gst_number,
-      city,
       state,
       pincode,
       country,
@@ -91,19 +88,25 @@ const getCustomerAddresses = async (req, res) => {
   try {
     const { customerId } = req.params;
 
-    const addresses = await getAddressesByCustomerId(customerId);
+    const addresses =
+      await getAddressesByCustomerId(customerId);
 
     return res.status(200).json({
       success: true,
-      message: "Customer addresses fetched successfully",
+      message:
+        "Customer addresses fetched successfully",
       data: addresses,
     });
   } catch (error) {
-    console.error("Get Customer Addresses Error:", error);
+    console.error(
+      "Get Customer Addresses Error:",
+      error,
+    );
 
     return res.status(500).json({
       success: false,
-      message: "Failed to fetch customer addresses",
+      message:
+        "Failed to fetch customer addresses",
       error: error.message,
     });
   }
@@ -149,7 +152,6 @@ const editAddress = async (req, res) => {
       address_type,
       address,
       gst_number,
-      city,
       state,
       pincode,
       country,
@@ -159,14 +161,13 @@ const editAddress = async (req, res) => {
       !customer_id ||
       !address_type ||
       !address ||
-      !city ||
       !state ||
       !pincode
     ) {
       return res.status(400).json({
         success: false,
         message:
-          "Customer ID, address type, address, city, state and pincode are required",
+          "Customer ID, address type, address, state and pincode are required",
       });
     }
 
@@ -175,7 +176,6 @@ const editAddress = async (req, res) => {
       address_type,
       address,
       gst_number,
-      city,
       state,
       pincode,
       country,

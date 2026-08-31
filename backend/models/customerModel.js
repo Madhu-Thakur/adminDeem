@@ -1,19 +1,31 @@
-const db = require("../config/db");
+ const db = require("../config/db");
 
 const createCustomer = async (customerData) => {
-  const { customer_name, company_name, phone, email, status } = customerData;
+  const {
+    customer_name,
+    company_name,
+    phone,
+    email,
+    status,
+  } = customerData;
 
   const [result] = await db.execute(
     `
       INSERT INTO customers
-      (customer_name, company_name, phone, email, status)
+      (
+        customer_name,
+        company_name,
+        phone,
+        email,
+        status
+      )
       VALUES (?, ?, ?, ?, ?)
     `,
     [
       customer_name,
       company_name || null,
-      phone,
-      email,
+      phone || null,
+      email || null,
       status || "Active",
     ],
   );
@@ -21,6 +33,7 @@ const createCustomer = async (customerData) => {
   return result.insertId;
 };
 
+// Get All Customers
 const getAllCustomers = async () => {
   const [rows] = await db.execute(
     `
@@ -28,11 +41,10 @@ const getAllCustomers = async () => {
         id,
         customer_name,
         company_name,
-        phone,
         email,
+        phone,
         status,
-        created_at,
-        updated_at
+        created_at
       FROM customers
       ORDER BY id DESC
     `,
@@ -41,6 +53,7 @@ const getAllCustomers = async () => {
   return rows;
 };
 
+// Get Customer By ID
 const getCustomerById = async (id) => {
   const [rows] = await db.execute(
     `
@@ -48,11 +61,10 @@ const getCustomerById = async (id) => {
         id,
         customer_name,
         company_name,
-        phone,
         email,
+        phone,
         status,
-        created_at,
-        updated_at
+        created_at
       FROM customers
       WHERE id = ?
     `,
@@ -62,8 +74,15 @@ const getCustomerById = async (id) => {
   return rows[0];
 };
 
+// Update Customer
 const updateCustomer = async (id, customerData) => {
-  const { customer_name, company_name, phone, email, status } = customerData;
+  const {
+    customer_name,
+    company_name,
+    phone,
+    email,
+    status,
+  } = customerData;
 
   const [result] = await db.execute(
     `
@@ -79,9 +98,9 @@ const updateCustomer = async (id, customerData) => {
     [
       customer_name,
       company_name || null,
-      phone,
-      email,
-      status,
+      phone || null,
+      email || null,
+      status || "Active",
       id,
     ],
   );
@@ -89,6 +108,7 @@ const updateCustomer = async (id, customerData) => {
   return result;
 };
 
+// Delete Customer
 const deleteCustomer = async (id) => {
   const [result] = await db.execute(
     `

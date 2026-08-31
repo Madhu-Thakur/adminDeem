@@ -1,8 +1,6 @@
 const db = require("../config/db");
  
-const generateInvoiceNumber = async (
-  connection,
-) => {
+const generateInvoiceNumber = async (connection) => {
   const year = new Date().getFullYear();
 
   const [rows] = await connection.execute(
@@ -19,8 +17,7 @@ const generateInvoiceNumber = async (
   let nextNumber = 1;
 
   if (rows.length > 0) {
-    const lastInvoiceNumber =
-      rows[0].invoice_number;
+    const lastInvoiceNumber = rows[0].invoice_number;
 
     const lastNumber = parseInt(
       lastInvoiceNumber.split("-").pop(),
@@ -32,15 +29,10 @@ const generateInvoiceNumber = async (
     }
   }
 
-  return `INV-${year}-${String(
-    nextNumber,
-  ).padStart(4, "0")}`;
+  return `INV-${year}-${String(nextNumber).padStart(4, "0")}`;
 };
  
-const createInvoice = async (
-  invoiceData,
-  items,
-) => {
+const createInvoice = async (invoiceData, items) => {
   const connection = await db.getConnection();
 
   try {
@@ -63,14 +55,15 @@ const createInvoice = async (
       note,
     } = invoiceData;
 
+    // Insert Invoice
     const [invoiceResult] =
       await connection.execute(
         `
           INSERT INTO invoices
           (
+            invoice_number,
             customer_id,
             address_id,
-            invoice_number,
             invoice_date,
             payment_mode,
             payment_status,
@@ -84,27 +77,24 @@ const createInvoice = async (
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `,
         [
+          invoiceNumber,
           customer_id,
           address_id,
-          invoiceNumber,
           invoice_date,
           payment_mode,
           payment_status || "Pending",
- 
           subtotal || 0,
-
           cgst || 0,
           sgst || 0,
           igst || 0,
           grand_total || 0,
-
           note || null,
         ],
       );
 
-    const invoiceId =
-      invoiceResult.insertId;
+    const invoiceId = invoiceResult.insertId;
 
+    // Insert Invoice Items
     for (const item of items) {
       await connection.execute(
         `
@@ -148,20 +138,28 @@ const getAllInvoices = async () => {
         i.invoice_number,
         i.customer_id,
         c.customer_name,
+
         i.address_id,
+
         i.invoice_date,
         i.payment_mode,
         i.payment_status,
+
+        i.subtotal,
         i.cgst,
         i.sgst,
         i.igst,
         i.grand_total,
+
         i.note,
         i.created_at,
         i.updated_at
+
       FROM invoices i
+
       INNER JOIN customers c
         ON i.customer_id = c.id
+
       ORDER BY i.id DESC
     `,
   );
@@ -170,82 +168,80 @@ const getAllInvoices = async () => {
 };
  
 const getInvoiceById = async (id) => {
-  const [invoiceRows] =
-    await db.execute(
-      `
-        SELECT
-          i.id,
-          i.invoice_number,
-          i.customer_id,
-          c.customer_name,
+  const [invoiceRows] = await db.execute(
+    `
+      SELECT
+        i.id,
+        i.invoice_number,
+        i.customer_id,
+        c.customer_name,
 
-          i.address_id,
+        i.address_id,
 
-          a.address,
-          a.city,
-          a.state,
-          a.pincode,
-          a.country,
-          a.gst_number,
+        a.address,
+        a.state,
+        a.pincode,
+        a.country,
+        a.gst_number,
+        a.address_type,
 
-          i.invoice_date,
-          i.payment_mode,
-          i.payment_status,
+        i.invoice_date,
+        i.payment_mode,
+        i.payment_status,
 
-          i.subtotal,
-          i.cgst,
-          i.sgst,
-          i.igst,
-          i.grand_total,
+        i.subtotal,
+        i.cgst,
+        i.sgst,
+        i.igst,
+        i.grand_total,
 
-          i.note,
-          i.created_at,
-          i.updated_at
+        i.note,
+        i.created_at,
+        i.updated_at
 
-        FROM invoices i
+      FROM invoices i
 
-        INNER JOIN customers c
-          ON i.customer_id = c.id
+      INNER JOIN customers c
+        ON i.customer_id = c.id
 
-        LEFT JOIN address_table a
-          ON i.address_id = a.id
+      LEFT JOIN address_table a
+        ON i.address_id = a.id
 
-        WHERE i.id = ?
-      `,
-      [id],
-    );
+      WHERE i.id = ?
+    `,
+    [id],
+  );
 
   if (invoiceRows.length === 0) {
     return null;
   }
 
-  const [items] =
-    await db.execute(
-      `
-        SELECT
-          id,
-          invoice_id,
-          item_name,
-          hsn,
-          amount,
-          created_at
-        FROM invoice_items
-        WHERE invoice_id = ?
-        ORDER BY id ASC
-      `,
-      [id],
-    );
+  // Get invoice items
+  const [items] = await db.execute(
+    `
+      SELECT
+        id,
+        invoice_id,
+        item_name,
+        hsn,
+        amount,
+        created_at
+      FROM invoice_items
+      WHERE invoice_id = ?
+      ORDER BY id ASC
+    `,
+    [id],
+  );
 
   const invoice = invoiceRows[0];
 
   return {
     ...invoice,
 
-    // Keep address together for frontend/PDF.
     address: {
       id: invoice.address_id,
       address: invoice.address,
-      city: invoice.city,
+      address_type: invoice.address_type,
       state: invoice.state,
       pincode: invoice.pincode,
       country: invoice.country,
@@ -256,13 +252,8 @@ const getInvoiceById = async (id) => {
   };
 };
  
-const updateInvoice = async (
-  id,
-  invoiceData,
-  items,
-) => {
-  const connection =
-    await db.getConnection();
+const updateInvoice = async (id, invoiceData, items) => {
+  const connection = await db.getConnection();
 
   try {
     await connection.beginTransaction();
@@ -281,6 +272,7 @@ const updateInvoice = async (
       note,
     } = invoiceData;
 
+    // Update invoice
     const [result] =
       await connection.execute(
         `
@@ -305,15 +297,12 @@ const updateInvoice = async (
           invoice_date,
           payment_mode,
           payment_status || "Pending",
-
           subtotal || 0,
           cgst || 0,
           sgst || 0,
           igst || 0,
           grand_total || 0,
-
           note || null,
-
           id,
         ],
       );
@@ -323,7 +312,7 @@ const updateInvoice = async (
       return false;
     }
 
-    // Remove old items
+    // Delete old invoice items
     await connection.execute(
       `
         DELETE FROM invoice_items
@@ -332,7 +321,7 @@ const updateInvoice = async (
       [id],
     );
 
-    // Insert updated items
+    // Insert updated invoice items
     for (const item of items) {
       await connection.execute(
         `
@@ -366,15 +355,37 @@ const updateInvoice = async (
 };
  
 const deleteInvoice = async (id) => {
-  const [result] = await db.execute(
-    `
-      DELETE FROM invoices
-      WHERE id = ?
-    `,
-    [id],
-  );
+  const connection = await db.getConnection();
 
-  return result;
+  try {
+    await connection.beginTransaction();
+
+    await connection.execute(
+      `
+        DELETE FROM invoice_items
+        WHERE invoice_id = ?
+      `,
+      [id],
+    );
+
+    // Delete the invoice
+    const [result] = await connection.execute(
+      `
+        DELETE FROM invoices
+        WHERE id = ?
+      `,
+      [id],
+    );
+
+    await connection.commit();
+
+    return result;
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
 };
  
 module.exports = {
