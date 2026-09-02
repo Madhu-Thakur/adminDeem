@@ -26,19 +26,16 @@ const SidebarMenu = ({ collapsed }) => {
       Array.isArray(module.children) && module.children.length > 0;
 
     const rowClass = `
-      group
-      flex
-      items-center
-      gap-3
-      px-3
-      h-12
-      rounded-xl
-      transition-all
-      duration-200
-      text-white/80
-      hover:bg-white/10
-      hover:text-white
-    `;
+  group
+  flex
+  items-center
+  gap-3
+  px-3
+  h-12
+  rounded-xl
+  transition-all
+  duration-200
+`;
 
     const showsSubmenu = !collapsed && hasChildren;
 
@@ -53,7 +50,7 @@ const SidebarMenu = ({ collapsed }) => {
             ${collapsed ? "justify-center w-full h-12" : ""}
             ${
               isActive
-                ? "bg-white text-deem-blue shadow-sm"
+                ? "bg-white !text-deem-blue shadow-sm"
                 : "text-white/80 hover:bg-white/10 hover:text-white"
             }
           `}
@@ -92,11 +89,7 @@ const SidebarMenu = ({ collapsed }) => {
 
           {!collapsed && (
             <span className="shrink-0">
-              {isOpen ? (
-                <ChevronDown size={16} />
-              ) : (
-                <ChevronRight size={16} />
-              )}
+              {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
             </span>
           )}
         </button>
@@ -105,7 +98,7 @@ const SidebarMenu = ({ collapsed }) => {
       </div>
     );
   };
-// Renders the nested group (e.g. "Voucher") and its leaf links.
+
   const renderChildren = (module, moduleKey) => {
     return (
       <div className="mt-1 ml-2 space-y-1">
@@ -132,7 +125,7 @@ const SidebarMenu = ({ collapsed }) => {
                   transition
                   ${
                     childActive
-                      ? "bg-white text-deem-blue shadow-sm font-medium"
+                     ? "bg-white !text-deem-blue shadow-sm font-medium"
                       : "text-white/70 hover:bg-white/10 hover:text-white"
                   }
                 `}
@@ -149,7 +142,6 @@ const SidebarMenu = ({ collapsed }) => {
             );
           }
 
-          // Nested group (e.g. "Voucher")with its own expand/collapse toggle.
           const groupKey = `${moduleKey}-${child.title}`;
           const groupOpen = isGroupOpen(groupKey);
 
@@ -212,9 +204,7 @@ const SidebarMenu = ({ collapsed }) => {
                       >
                         <span
                           className={
-                            leafActive
-                              ? "text-deem-blue/40"
-                              : "text-white/40"
+                            leafActive ? "text-deem-blue/40" : "text-white/40"
                           }
                         >
                           -

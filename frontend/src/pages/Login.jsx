@@ -1,8 +1,12 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import logo from "../assets/images/logo-1.png";
 import { Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
 
 const Login = () => {
+
+  const navigate = useNavigate();   //for redirecting on the  dashboard
+
   const [showPassword, setShowPassword] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -21,6 +25,11 @@ const Login = () => {
     e.preventDefault();
 
     console.log("Login Data:", formData);
+
+
+    // Redirect to dashboard
+    navigate("/dashboard");
+
   };
 
   return (
