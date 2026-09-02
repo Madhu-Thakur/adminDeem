@@ -1,5 +1,3 @@
- 
-
 export const payments = [
   { id: 1, customerId: 2, customerName: "ABC Technologies", paymentDate: "2026-08-21", transactionType: "Payment Received", transactionNumber: "TXN20260821001", serviceType: "Website", paymentReceived: 25000, balance: 10000, status: "Paid" },
   { id: 2, customerId: 3, customerName: "XYZ Solutions", paymentDate: "2026-08-18", transactionType: "Payment Received", transactionNumber: "TXN20260818002", serviceType: "Hosting", paymentReceived: 8000, balance: 4000, status: "Partial" },

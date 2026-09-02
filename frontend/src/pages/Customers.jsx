@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Plus,
@@ -29,7 +29,6 @@ const Customers = () => {
       setLoading(true);
       setError("");
 
-      // GET http://localhost:5000/api/customers
       const response = await fetch(CUSTOMER_API_URL);
       const result = await parseJson(response);
 
@@ -100,7 +99,6 @@ const Customers = () => {
     try {
       setError("");
 
-      // DELETE http://localhost:5000/api/customers/:id
       const response = await fetch(
         `${CUSTOMER_API_URL}/${customer.id}`,
         {
@@ -119,7 +117,13 @@ const Customers = () => {
       );
 
       setCurrentPage((page) =>
-        Math.min(page, Math.max(1, Math.ceil((filteredCustomers.length - 1) / PAGE_SIZE))),
+        Math.min(
+          page,
+          Math.max(
+            1,
+            Math.ceil((filteredCustomers.length - 1) / PAGE_SIZE),
+          ),
+        ),
       );
     } catch (err) {
       console.error("Delete Customer Error:", err);
@@ -128,11 +132,11 @@ const Customers = () => {
   };
 
   const handleEdit = (customerId) => {
-    navigate(`/customers/add?id=${customerId}`);
+    navigate(`/customers/edit/${customerId}`);
   };
 
   const handleView = (customerId) => {
-    navigate(`/customers/add?id=${customerId}`);
+    navigate(`/customers/${customerId}`);
   };
 
   return (
@@ -198,20 +202,28 @@ const Customers = () => {
                 <th className="px-5 py-3.5">Email</th>
                 <th className="px-5 py-3.5">Phone</th>
                 <th className="px-5 py-3.5">Status</th>
-                <th className="w-[160px] px-5 py-3.5 text-center">Actions</th>
+                <th className="w-[160px] px-5 py-3.5 text-center">
+                  Actions
+                </th>
               </tr>
             </thead>
 
             <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="px-5 py-12 text-center text-gray-500">
+                  <td
+                    colSpan={7}
+                    className="px-5 py-12 text-center text-gray-500"
+                  >
                     Loading customers...
                   </td>
                 </tr>
               ) : paginatedCustomers.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-5 py-12 text-center text-gray-500">
+                  <td
+                    colSpan={7}
+                    className="px-5 py-12 text-center text-gray-500"
+                  >
                     No customers found
                   </td>
                 </tr>
@@ -296,18 +308,16 @@ const Customers = () => {
             {filteredCustomers.length === 0
               ? 0
               : (currentPage - 1) * PAGE_SIZE + 1}{" "}
-            -{" "}
-            {Math.min(
-              currentPage * PAGE_SIZE,
-              filteredCustomers.length,
-            )}{" "}
-            of {filteredCustomers.length} customers
+            - {Math.min(currentPage * PAGE_SIZE, filteredCustomers.length)} of{" "}
+            {filteredCustomers.length} customers
           </p>
 
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              onClick={() =>
+                setCurrentPage((prev) => Math.max(prev - 1, 1))
+              }
               disabled={currentPage === 1}
               className="w-9 h-9 rounded-lg border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-500 disabled:opacity-40 cursor-pointer"
             >
@@ -315,22 +325,23 @@ const Customers = () => {
             </button>
 
             {filteredCustomers.length > 0 &&
-              Array.from({ length: totalPages }, (_, index) => index + 1).map(
-                (page) => (
-                  <button
-                    key={page}
-                    type="button"
-                    onClick={() => setCurrentPage(page)}
-                    className={`w-9 h-9 rounded-lg text-sm font-medium transition cursor-pointer ${
-                      currentPage === page
-                        ? "bg-deem-blue text-white"
-                        : "border border-gray-200 dark:border-gray-700 text-gray-500 hover:bg-gray-50"
-                    }`}
-                  >
-                    {page}
-                  </button>
-                ),
-              )}
+              Array.from(
+                { length: totalPages },
+                (_, index) => index + 1,
+              ).map((page) => (
+                <button
+                  key={page}
+                  type="button"
+                  onClick={() => setCurrentPage(page)}
+                  className={`w-9 h-9 rounded-lg text-sm font-medium transition cursor-pointer ${
+                    currentPage === page
+                      ? "bg-deem-blue text-white"
+                      : "border border-gray-200 dark:border-gray-700 text-gray-500 hover:bg-gray-50"
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
 
             <button
               type="button"

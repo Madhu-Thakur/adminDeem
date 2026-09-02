@@ -1,3 +1,4 @@
+ 
 import { useEffect, useState } from "react";
 
 import CollapsibleSection from "./CollapsibleSection";
@@ -11,20 +12,22 @@ const CustomerInvoices = ({ customerId }) => {
   useEffect(() => {
     const fetchInvoices = async () => {
       try {
-    
-        const response = await fetch(INVOICE_API_URL);
+        setLoading(true);
+
+        const response = await fetch(
+          `${INVOICE_API_URL}/customer/${customerId}`,
+        );
+
         const result = await response.json();
 
-        if (!response.ok) {
-          throw new Error(result.message || "Failed to fetch invoices");
+        if (!response.ok || !result.success) {
+          throw new Error(
+            result.message || "Failed to fetch customer invoices",
+          );
         }
 
-        const allInvoices = Array.isArray(result.data) ? result.data : [];
- 
         setInvoices(
-          allInvoices.filter(
-            (invoice) => Number(invoice.customer_id) === Number(customerId),
-          ),
+          Array.isArray(result.data) ? result.data : [],
         );
       } catch (error) {
         console.error("Fetch Customer Invoices Error:", error);
@@ -34,7 +37,12 @@ const CustomerInvoices = ({ customerId }) => {
       }
     };
 
-    fetchInvoices();
+    if (customerId) {
+      fetchInvoices();
+    } else {
+      setInvoices([]);
+      setLoading(false);
+    }
   }, [customerId]);
 
   const hasInvoices = invoices.length > 0;
@@ -45,15 +53,30 @@ const CustomerInvoices = ({ customerId }) => {
       disabled={!loading && !hasInvoices}
       disabledLabel="No invoices"
     >
-      {!loading && hasInvoices && (
+      {loading ? (
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          Loading invoices...
+        </p>
+      ) : hasInvoices ? (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-gray-50 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:bg-[#0b0f14] dark:text-gray-400">
-                <th className="px-5 py-3.5">Invoice Number</th>
-                <th className="px-5 py-3.5">Invoice Date</th>
-                <th className="px-5 py-3.5 text-right">Amount</th>
-                <th className="px-5 py-3.5">Status</th>
+                <th className="px-5 py-3.5">
+                  Invoice Number
+                </th>
+
+                <th className="px-5 py-3.5">
+                  Invoice Date
+                </th>
+
+                <th className="px-5 py-3.5 text-right">
+                  Amount
+                </th>
+
+                <th className="px-5 py-3.5">
+                  Status
+                </th>
               </tr>
             </thead>
 
@@ -91,7 +114,7 @@ const CustomerInvoices = ({ customerId }) => {
             </tbody>
           </table>
         </div>
-      )}
+      ) : null}
     </CollapsibleSection>
   );
 };

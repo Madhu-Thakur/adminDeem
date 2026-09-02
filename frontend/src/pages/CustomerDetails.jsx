@@ -1,6 +1,17 @@
+ 
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Pencil } from "lucide-react";
+import { ArrowLeft, Pencil, Wrench } from "lucide-react";
+
+import CollapsibleSection from "../components/customers/CollapsibleSection";
+import ServiceTable from "../components/customers/ServiceTable";
+import CustomerInvoices from "../components/customers/CustomerInvoices";
+
+import {
+  CUSTOMER_API_URL,
+  ADDRESS_API_URL,
+  SERVICE_API_URL,
+} from "../utils/api";
 
 const CustomerDetails = () => {
   const { id } = useParams();
@@ -8,31 +19,52 @@ const CustomerDetails = () => {
 
   const [customer, setCustomer] = useState(null);
   const [addresses, setAddresses] = useState([]);
+  const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchCustomerDetails = async () => {
       try {
         const customerResponse = await fetch(
-          `${import.meta.env.VITE_API_URL}/customers/${id}`,
+          `${CUSTOMER_API_URL}/${id}`,
         );
 
         const customerResult = await customerResponse.json();
 
         if (!customerResponse.ok || !customerResult.success) {
-          throw new Error(customerResult.message || "Failed to fetch customer");
+          throw new Error(
+            customerResult.message || "Failed to fetch customer",
+          );
         }
 
         setCustomer(customerResult.data);
 
         const addressResponse = await fetch(
-          `${import.meta.env.VITE_API_URL}/addresses/customer/${id}`,
+          `${ADDRESS_API_URL}/customer/${id}`,
         );
 
         const addressResult = await addressResponse.json();
 
         if (addressResult.success) {
-          setAddresses(addressResult.data);
+          setAddresses(
+            Array.isArray(addressResult.data)
+              ? addressResult.data
+              : [],
+          );
+        }
+
+        const serviceResponse = await fetch(
+          `${SERVICE_API_URL}/customer/${id}`,
+        );
+
+        const serviceResult = await serviceResponse.json();
+
+        if (serviceResult.success) {
+          setServices(
+            Array.isArray(serviceResult.data)
+              ? serviceResult.data
+              : [],
+          );
         }
       } catch (error) {
         console.error("Error fetching customer details:", error);
@@ -56,7 +88,9 @@ const CustomerDetails = () => {
   if (!customer) {
     return (
       <div className="p-6">
-        <p className="text-gray-500 dark:text-gray-400">Customer not found.</p>
+        <p className="text-gray-500 dark:text-gray-400">
+          Customer not found.
+        </p>
 
         <button
           type="button"
@@ -109,7 +143,9 @@ const CustomerDetails = () => {
 
           <button
             type="button"
-            onClick={() => navigate(`/customers/edit/${customer.id}`)}
+            onClick={() =>
+              navigate(`/customers/edit/${customer.id}`)
+            }
             className="
               flex
               items-center
@@ -129,29 +165,42 @@ const CustomerDetails = () => {
         </div>
       </div>
 
+      {/* Customer Information */}
       <div className="rounded-2xl bg-white dark:bg-[#161b22] border border-gray-200 dark:border-gray-700 p-6">
         <h2 className="text-lg font-semibold text-deem-blue dark:text-white mb-5">
           Customer Information
         </h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          <InfoItem label="Customer Name" value={customer.customer_name} />
+          <InfoItem
+            label="Customer Name"
+            value={customer.customer_name}
+          />
 
-          <InfoItem label="Company Name" value={customer.company_name} />
+          <InfoItem
+            label="Company Name"
+            value={customer.company_name}
+          />
 
-          <InfoItem label="Email" value={customer.email} />
+          <InfoItem
+            label="Email"
+            value={customer.email}
+          />
 
-          <InfoItem label="Phone" value={customer.phone} />
+          <InfoItem
+            label="Phone"
+            value={customer.phone}
+          />
 
-          <InfoItem label="Status" value={customer.status} />
+          <InfoItem
+            label="Status"
+            value={customer.status}
+          />
         </div>
       </div>
 
-      <div className="mt-6 rounded-2xl bg-white dark:bg-[#161b22] border border-gray-200 dark:border-gray-700 p-6">
-        <h2 className="text-lg font-semibold text-deem-blue dark:text-white mb-5">
-          Customer Addresses
-        </h2>
-
+      {/* Address */}
+      <CollapsibleSection title="Address">
         {addresses.length === 0 ? (
           <p className="text-sm text-gray-500 dark:text-gray-400">
             No addresses found.
@@ -164,7 +213,7 @@ const CustomerDetails = () => {
                 className="p-4 rounded-xl border border-gray-200 dark:border-gray-700"
               >
                 <p className="text-xs font-semibold uppercase text-gray-400 mb-1">
-                  {item.addressType || "Address"}
+                  {item.address_type || "Address"}
                 </p>
 
                 <p className="text-sm text-gray-700 dark:text-gray-200">
@@ -174,8 +223,30 @@ const CustomerDetails = () => {
             ))}
           </div>
         )}
-      </div>
- 
+      </CollapsibleSection>
+
+      {/* Services */}
+      <CollapsibleSection title="Services">
+        {services.length === 0 ? (
+          <div className="py-10 text-center text-gray-500 dark:text-gray-400">
+            <Wrench
+              size={32}
+              className="mx-auto mb-3 opacity-40"
+            />
+
+            <p className="text-sm">
+              No services found
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-hidden rounded-2xl border border-[#e6edf2] bg-white dark:border-gray-700 dark:bg-[#161b22]">
+            <ServiceTable services={services} />
+          </div>
+        )}
+      </CollapsibleSection>
+
+      {/* Invoices */}
+      <CustomerInvoices customerId={id} />
     </div>
   );
 };
@@ -187,7 +258,9 @@ const InfoItem = ({ label, value }) => {
         {label}
       </p>
 
-      <p className="text-sm text-gray-700 dark:text-gray-200">{value || "-"}</p>
+      <p className="text-sm text-gray-700 dark:text-gray-200">
+        {value || "-"}
+      </p>
     </div>
   );
 };
