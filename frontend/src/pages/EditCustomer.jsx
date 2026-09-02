@@ -16,40 +16,69 @@ const EditCustomer = () => {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [invoices, setInvoices] = useState([]);
+  const [invoiceLoading, setInvoiceLoading] = useState(true);
+
+  // useEffect(() => {
+  //   const fetchCustomer = async () => {
+  //     try {
+  //       const response = await fetch(
+  //         `${import.meta.env.VITE_API_URL}/customers/${id}`
+  //       );
+
+  //       const result = await response.json();
+
+  //       if (!response.ok || !result.success) {
+  //         throw new Error(
+  //           result.message || "Failed to fetch customer"
+  //         );
+  //       }
+
+  //       const customer = result.data;
+
+  //       setFormData({
+  //         customerName: customer.customer_name || "",
+  //         companyName: customer.company_name || "",
+  //         email: customer.email || "",
+  //         phone: customer.phone || "",
+  //         status: customer.status || "Active",
+  //       });
+  //     } catch (error) {
+  //       console.error("Error fetching customer:", error);
+  //       alert("Failed to load customer.");
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchCustomer();
+  // }, [id]);
 
   useEffect(() => {
-    const fetchCustomer = async () => {
+    const fetchInvoices = async () => {
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/customers/${id}`
+          `${import.meta.env.VITE_API_URL}/invoices/customer/${id}`,
         );
 
         const result = await response.json();
 
         if (!response.ok || !result.success) {
-          throw new Error(
-            result.message || "Failed to fetch customer"
-          );
+          throw new Error(result.message || "Failed to fetch invoices");
         }
 
-        const customer = result.data;
-
-        setFormData({
-          customerName: customer.customer_name || "",
-          companyName: customer.company_name || "",
-          email: customer.email || "",
-          phone: customer.phone || "",
-          status: customer.status || "Active",
-        });
+        setInvoices(Array.isArray(result.data) ? result.data : []);
       } catch (error) {
-        console.error("Error fetching customer:", error);
-        alert("Failed to load customer.");
+        console.error("Error fetching invoices:", error);
+        setInvoices([]);
       } finally {
-        setLoading(false);
+        setInvoiceLoading(false);
       }
     };
 
-    fetchCustomer();
+    if (id) {
+      fetchInvoices();
+    }
   }, [id]);
 
   const handleChange = (e) => {
@@ -75,15 +104,13 @@ const EditCustomer = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(formData),
-        }
+        },
       );
 
       const result = await response.json();
 
       if (!response.ok || !result.success) {
-        throw new Error(
-          result.message || "Failed to update customer"
-        );
+        throw new Error(result.message || "Failed to update customer");
       }
 
       alert("Customer updated successfully");
@@ -253,17 +280,99 @@ const EditCustomer = () => {
           </button>
         </div>
       </form>
+      {/* Invoices */}
+      <div
+        className="
+    mt-6
+    rounded-2xl
+    bg-white
+    dark:bg-[#161b22]
+    border
+    border-gray-200
+    dark:border-gray-700
+    p-6
+  "
+      >
+        <div className="flex items-center justify-between mb-5">
+          <div>
+            <h2 className="text-xl font-semibold text-deem-blue dark:text-white">
+              Invoices
+            </h2>
+
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              Invoices created for this customer
+            </p>
+          </div>
+        </div>
+
+        {invoiceLoading ? (
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Loading invoices...
+          </p>
+        ) : invoices.length === 0 ? (
+          <div className="py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+            No invoices found for this customer.
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-gray-200 dark:border-gray-700 text-left">
+                  <th className="px-4 py-3">Invoice No.</th>
+                  <th className="px-4 py-3">Date</th>
+                  <th className="px-4 py-3">Payment Mode</th>
+                  <th className="px-4 py-3">Total</th>
+                  <th className="px-4 py-3">Status</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {invoices.map((invoice) => (
+                  <tr
+                    key={invoice.id}
+                    className="border-b border-gray-100 dark:border-gray-700"
+                  >
+                    <td className="px-4 py-3 font-medium text-deem-blue dark:text-white">
+                      {invoice.invoice_number}
+                    </td>
+
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">
+                      {invoice.invoice_date}
+                    </td>
+
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">
+                      {invoice.payment_mode || "-"}
+                    </td>
+
+                    <td className="px-4 py-3 font-medium text-gray-700 dark:text-gray-200">
+                      ₹{Number(invoice.grand_total).toFixed(2)}
+                    </td>
+
+                    <td className="px-4 py-3">
+                      <span
+                        className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium ${
+                          invoice.payment_status === "Paid"
+                            ? "bg-emerald-50 text-emerald-700"
+                            : invoice.payment_status === "Partial"
+                              ? "bg-amber-50 text-amber-700"
+                              : "bg-red-50 text-red-700"
+                        }`}
+                      >
+                        {invoice.payment_status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
 
-const InputField = ({
-  label,
-  name,
-  value,
-  onChange,
-  type = "text",
-}) => {
+const InputField = ({ label, name, value, onChange, type = "text" }) => {
   return (
     <div>
       <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">

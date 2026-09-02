@@ -13,23 +13,20 @@ const CustomerDetails = () => {
   useEffect(() => {
     const fetchCustomerDetails = async () => {
       try {
-   
         const customerResponse = await fetch(
-          `${import.meta.env.VITE_API_URL}/customers/${id}`
+          `${import.meta.env.VITE_API_URL}/customers/${id}`,
         );
 
         const customerResult = await customerResponse.json();
 
         if (!customerResponse.ok || !customerResult.success) {
-          throw new Error(
-            customerResult.message || "Failed to fetch customer"
-          );
+          throw new Error(customerResult.message || "Failed to fetch customer");
         }
 
         setCustomer(customerResult.data);
- 
+
         const addressResponse = await fetch(
-          `${import.meta.env.VITE_API_URL}/addresses/customer/${id}`
+          `${import.meta.env.VITE_API_URL}/addresses/customer/${id}`,
         );
 
         const addressResult = await addressResponse.json();
@@ -59,9 +56,7 @@ const CustomerDetails = () => {
   if (!customer) {
     return (
       <div className="p-6">
-        <p className="text-gray-500 dark:text-gray-400">
-          Customer not found.
-        </p>
+        <p className="text-gray-500 dark:text-gray-400">Customer not found.</p>
 
         <button
           type="button"
@@ -76,7 +71,6 @@ const CustomerDetails = () => {
 
   return (
     <div>
-   
       <div className="flex items-center justify-between mb-7">
         <div>
           <h1 className="text-3xl font-bold text-deem-blue dark:text-white">
@@ -134,41 +128,25 @@ const CustomerDetails = () => {
           </button>
         </div>
       </div>
- 
+
       <div className="rounded-2xl bg-white dark:bg-[#161b22] border border-gray-200 dark:border-gray-700 p-6">
         <h2 className="text-lg font-semibold text-deem-blue dark:text-white mb-5">
           Customer Information
         </h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          <InfoItem
-            label="Customer Name"
-            value={customer.customer_name}
-          />
+          <InfoItem label="Customer Name" value={customer.customer_name} />
 
-          <InfoItem
-            label="Company Name"
-            value={customer.company_name}
-          />
+          <InfoItem label="Company Name" value={customer.company_name} />
 
-          <InfoItem
-            label="Email"
-            value={customer.email}
-          />
+          <InfoItem label="Email" value={customer.email} />
 
-          <InfoItem
-            label="Phone"
-            value={customer.phone}
-          />
+          <InfoItem label="Phone" value={customer.phone} />
 
-          <InfoItem
-            label="Status"
-            value={customer.status}
-          />
+          <InfoItem label="Status" value={customer.status} />
         </div>
       </div>
 
- 
       <div className="mt-6 rounded-2xl bg-white dark:bg-[#161b22] border border-gray-200 dark:border-gray-700 p-6">
         <h2 className="text-lg font-semibold text-deem-blue dark:text-white mb-5">
           Customer Addresses
@@ -197,6 +175,7 @@ const CustomerDetails = () => {
           </div>
         )}
       </div>
+ 
     </div>
   );
 };
@@ -208,9 +187,7 @@ const InfoItem = ({ label, value }) => {
         {label}
       </p>
 
-      <p className="text-sm text-gray-700 dark:text-gray-200">
-        {value || "-"}
-      </p>
+      <p className="text-sm text-gray-700 dark:text-gray-200">{value || "-"}</p>
     </div>
   );
 };

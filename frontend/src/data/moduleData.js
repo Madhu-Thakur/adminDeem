@@ -47,7 +47,20 @@ export const modules = [
   {
     title: "Accounts",
     icon: IndianRupee,
-    path: "/accounts",
+    path: "/accounts/voucher/sale",
+    children: [
+      {
+        title: "Voucher",
+        children: [
+          { title: "Sale Voucher", path: "/accounts/voucher/sale", type: "sale" },
+          {
+            title: "Purchase Voucher",
+            path: "/accounts/voucher/purchase",
+            type: "purchase",
+          },
+        ],
+      },
+    ],
   },
   {
     title: "Tasks",

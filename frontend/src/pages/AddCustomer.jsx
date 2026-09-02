@@ -5,6 +5,7 @@ import CustomerForm from "../components/customers/CustomerForm";
 import AddressSection from "../components/customers/AddressSection";
 import ServiceDetails from "../components/customers/ServiceDetails";
 import { CUSTOMER_API_URL, parseJson } from "../utils/api";
+import InvoiceSection from "../components/customers/InvoiceSection";
 
 const AddCustomer = () => {
   const navigate = useNavigate();
@@ -26,7 +27,7 @@ const AddCustomer = () => {
   const params = new URLSearchParams(location.search);
   const editId = params.get("id");
   const editMode = Boolean(editId);
- 
+
   const [customerId, setCustomerId] = useState(
     editMode ? String(editId) : null,
   );
@@ -48,7 +49,7 @@ const AddCustomer = () => {
         }
 
         const customer = result.data;
- 
+
         setCustomerId(String(customer.id));
 
         setFormData({
@@ -82,9 +83,7 @@ const AddCustomer = () => {
     };
 
     try {
-      const url = editMode
-        ? `${CUSTOMER_API_URL}/${editId}`
-        : CUSTOMER_API_URL;
+      const url = editMode ? `${CUSTOMER_API_URL}/${editId}` : CUSTOMER_API_URL;
 
       const response = await fetch(url, {
         method: editMode ? "PUT" : "POST",
@@ -195,6 +194,12 @@ const AddCustomer = () => {
       <div className="mt-6 rounded-2xl bg-white dark:bg-[#161b22] border border-[#e6edf2] dark:border-gray-700 p-6">
         <ServiceDetails customerId={customerId} />
       </div>
+
+      {editMode && customerId && (
+        <div className="mt-6 rounded-2xl bg-white dark:bg-[#161b22] border border-[#e6edf2] dark:border-gray-700 p-6">
+          <InvoiceSection customerId={customerId} />
+        </div>
+      )}
     </div>
   );
 };

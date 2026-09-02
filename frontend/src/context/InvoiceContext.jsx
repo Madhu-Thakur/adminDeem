@@ -138,10 +138,39 @@ export const InvoiceProvider = ({ children }) => {
     }
   };
 
+
+
   // Load invoices when provider starts
   useEffect(() => {
     fetchInvoices();
   }, []);
+
+
+const getCustomerInvoices = async (customerId) => {
+  try {
+    setError("");
+
+    const response = await fetch(
+      `${API_URL}/customer/${customerId}`
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        result.message || "Failed to fetch customer invoices"
+      );
+    }
+
+    return result.data || [];
+  } catch (error) {
+    console.error("Get Customer Invoices Error:", error);
+    setError(error.message);
+    return [];
+  }
+};
+
+
 
   return (
     <InvoiceContext.Provider
@@ -154,6 +183,7 @@ export const InvoiceProvider = ({ children }) => {
         updateInvoice,
         deleteInvoice,
         getInvoice,
+        getCustomerInvoices,
       }}
     >
       {children}
