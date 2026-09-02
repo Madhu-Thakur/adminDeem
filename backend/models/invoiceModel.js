@@ -1,5 +1,5 @@
 const db = require("../config/db");
- 
+
 const generateInvoiceNumber = async (connection) => {
   const year = new Date().getFullYear();
 
@@ -19,10 +19,7 @@ const generateInvoiceNumber = async (connection) => {
   if (rows.length > 0) {
     const lastInvoiceNumber = rows[0].invoice_number;
 
-    const lastNumber = parseInt(
-      lastInvoiceNumber.split("-").pop(),
-      10,
-    );
+    const lastNumber = parseInt(lastInvoiceNumber.split("-").pop(), 10);
 
     if (!Number.isNaN(lastNumber)) {
       nextNumber = lastNumber + 1;
@@ -31,15 +28,14 @@ const generateInvoiceNumber = async (connection) => {
 
   return `INV-${year}-${String(nextNumber).padStart(4, "0")}`;
 };
- 
+
 const createInvoice = async (invoiceData, items) => {
   const connection = await db.getConnection();
 
   try {
     await connection.beginTransaction();
 
-    const invoiceNumber =
-      await generateInvoiceNumber(connection);
+    const invoiceNumber = await generateInvoiceNumber(connection);
 
     const {
       customer_id,
@@ -56,9 +52,8 @@ const createInvoice = async (invoiceData, items) => {
     } = invoiceData;
 
     // Insert Invoice
-    const [invoiceResult] =
-      await connection.execute(
-        `
+    const [invoiceResult] = await connection.execute(
+      `
           INSERT INTO invoices
           (
             invoice_number,
@@ -76,21 +71,21 @@ const createInvoice = async (invoiceData, items) => {
           )
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `,
-        [
-          invoiceNumber,
-          customer_id,
-          address_id,
-          invoice_date,
-          payment_mode,
-          payment_status || "Pending",
-          subtotal || 0,
-          cgst || 0,
-          sgst || 0,
-          igst || 0,
-          grand_total || 0,
-          note || null,
-        ],
-      );
+      [
+        invoiceNumber,
+        customer_id,
+        address_id,
+        invoice_date,
+        payment_mode,
+        payment_status || "Pending",
+        subtotal || 0,
+        cgst || 0,
+        sgst || 0,
+        igst || 0,
+        grand_total || 0,
+        note || null,
+      ],
+    );
 
     const invoiceId = invoiceResult.insertId;
 
@@ -107,12 +102,7 @@ const createInvoice = async (invoiceData, items) => {
           )
           VALUES (?, ?, ?, ?)
         `,
-        [
-          invoiceId,
-          item.item_name,
-          item.hsn || null,
-          item.amount || 0,
-        ],
+        [invoiceId, item.item_name, item.hsn || null, item.amount || 0],
       );
     }
 
@@ -129,7 +119,35 @@ const createInvoice = async (invoiceData, items) => {
     connection.release();
   }
 };
- 
+
+const getInvoicesByCustomerId = async (customerId) => {
+  const [rows] = await db.execute(
+    `
+      SELECT
+        i.id,
+        i.invoice_number,
+        i.customer_id,
+        i.invoice_date,
+        i.payment_mode,
+        i.payment_status,
+        i.subtotal,
+        i.cgst,
+        i.sgst,
+        i.igst,
+        i.grand_total,
+        i.note,
+        i.created_at,
+        i.updated_at
+      FROM invoices i
+      WHERE i.customer_id = ?
+      ORDER BY i.invoice_date DESC, i.id DESC
+    `,
+    [customerId],
+  );
+
+  return rows;
+};
+
 const getAllInvoices = async () => {
   const [rows] = await db.execute(
     `
@@ -166,7 +184,7 @@ const getAllInvoices = async () => {
 
   return rows;
 };
- 
+
 const getInvoiceById = async (id) => {
   const [invoiceRows] = await db.execute(
     `
@@ -251,7 +269,7 @@ const getInvoiceById = async (id) => {
     items,
   };
 };
- 
+
 const updateInvoice = async (id, invoiceData, items) => {
   const connection = await db.getConnection();
 
@@ -273,9 +291,8 @@ const updateInvoice = async (id, invoiceData, items) => {
     } = invoiceData;
 
     // Update invoice
-    const [result] =
-      await connection.execute(
-        `
+    const [result] = await connection.execute(
+      `
           UPDATE invoices
           SET
             customer_id = ?,
@@ -291,21 +308,21 @@ const updateInvoice = async (id, invoiceData, items) => {
             note = ?
           WHERE id = ?
         `,
-        [
-          customer_id,
-          address_id,
-          invoice_date,
-          payment_mode,
-          payment_status || "Pending",
-          subtotal || 0,
-          cgst || 0,
-          sgst || 0,
-          igst || 0,
-          grand_total || 0,
-          note || null,
-          id,
-        ],
-      );
+      [
+        customer_id,
+        address_id,
+        invoice_date,
+        payment_mode,
+        payment_status || "Pending",
+        subtotal || 0,
+        cgst || 0,
+        sgst || 0,
+        igst || 0,
+        grand_total || 0,
+        note || null,
+        id,
+      ],
+    );
 
     if (result.affectedRows === 0) {
       await connection.rollback();
@@ -334,12 +351,7 @@ const updateInvoice = async (id, invoiceData, items) => {
           )
           VALUES (?, ?, ?, ?)
         `,
-        [
-          id,
-          item.item_name,
-          item.hsn || null,
-          item.amount || 0,
-        ],
+        [id, item.item_name, item.hsn || null, item.amount || 0],
       );
     }
 
@@ -353,7 +365,7 @@ const updateInvoice = async (id, invoiceData, items) => {
     connection.release();
   }
 };
- 
+
 const deleteInvoice = async (id) => {
   const connection = await db.getConnection();
 
@@ -387,10 +399,11 @@ const deleteInvoice = async (id) => {
     connection.release();
   }
 };
- 
+
 module.exports = {
   createInvoice,
   getAllInvoices,
+  getInvoicesByCustomerId,
   getInvoiceById,
   updateInvoice,
   deleteInvoice,

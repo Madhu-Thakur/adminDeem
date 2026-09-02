@@ -3,6 +3,7 @@ const express = require("express");
 const {
   addInvoice,
   getInvoices,
+    getCustomerInvoices,
   getInvoice,
   editInvoice,
   removeInvoice,
@@ -13,6 +14,8 @@ const router = express.Router();
 router.post("/", addInvoice);
 
 router.get("/", getInvoices);
+
+router.get("/customer/:customerId", getCustomerInvoices);
 
 router.get("/:id", getInvoice);
 

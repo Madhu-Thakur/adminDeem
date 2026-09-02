@@ -1,23 +1,19 @@
- const {
+const {
   createInvoice,
   getAllInvoices,
+  getInvoicesByCustomerId,
   getInvoiceById,
   updateInvoice,
   deleteInvoice,
 } = require("../models/invoiceModel");
 
 const db = require("../config/db");
- 
-const calculateGSTFromGrandTotal = (
-  grandTotal,
-  isSameState,
-) => {
+
+const calculateGSTFromGrandTotal = (grandTotal, isSameState) => {
   const total = Number(grandTotal);
 
   if (!Number.isFinite(total) || total <= 0) {
-    throw new Error(
-      "Grand total must be a valid positive amount",
-    );
+    throw new Error("Grand total must be a valid positive amount");
   }
 
   // Grand Total already includes 18% GST
@@ -37,9 +33,7 @@ const calculateGSTFromGrandTotal = (
   }
 
   return {
-    subtotal: Number(
-      taxableAmount.toFixed(2),
-    ),
+    subtotal: Number(taxableAmount.toFixed(2)),
 
     cgst: Number(cgst.toFixed(2)),
 
@@ -50,7 +44,7 @@ const calculateGSTFromGrandTotal = (
     grand_total: Number(total.toFixed(2)),
   };
 };
- 
+
 const getGSTType = async (addressId) => {
   const [rows] = await db.execute(
     `
@@ -66,9 +60,7 @@ const getGSTType = async (addressId) => {
   );
 
   if (rows.length === 0) {
-    throw new Error(
-      "Selected billing address not found",
-    );
+    throw new Error("Selected billing address not found");
   }
 
   const address = rows[0];
@@ -76,52 +68,34 @@ const getGSTType = async (addressId) => {
   // DEEM registered state
   const DEEM_STATE = "Gujarat";
 
-  const customerCountry = String(
-    address.country || "",
-  ).trim();
+  const customerCountry = String(address.country || "").trim();
 
-  const customerState = String(
-    address.state || "",
-  ).trim();
+  const customerState = String(address.state || "").trim();
 
   // GST not applicable outside India
-  if (
-    customerCountry.toLowerCase() !== "india"
-  ) {
+  if (customerCountry.toLowerCase() !== "india") {
     return {
       gstApplicable: false,
       isSameState: false,
     };
   }
 
-  const isSameState =
-    customerState.toLowerCase() ===
-    DEEM_STATE.toLowerCase();
+  const isSameState = customerState.toLowerCase() === DEEM_STATE.toLowerCase();
 
   return {
     gstApplicable: true,
     isSameState,
   };
 };
- 
+
 const validateItems = (items) => {
-  if (
-    !Array.isArray(items) ||
-    items.length === 0
-  ) {
-    throw new Error(
-      "At least one invoice item is required",
-    );
+  if (!Array.isArray(items) || items.length === 0) {
+    throw new Error("At least one invoice item is required");
   }
 
   for (const item of items) {
-    if (
-      !item.item_name ||
-      !item.item_name.trim()
-    ) {
-      throw new Error(
-        "Item name is required",
-      );
+    if (!item.item_name || !item.item_name.trim()) {
+      throw new Error("Item name is required");
     }
 
     if (
@@ -130,13 +104,11 @@ const validateItems = (items) => {
       item.amount !== "" &&
       Number(item.amount) < 0
     ) {
-      throw new Error(
-        "Item amount cannot be negative",
-      );
+      throw new Error("Item amount cannot be negative");
     }
   }
 };
- 
+
 const addInvoice = async (req, res) => {
   try {
     const {
@@ -149,38 +121,35 @@ const addInvoice = async (req, res) => {
       note,
       items,
     } = req.body;
- 
+
     if (!customer_id) {
       return res.status(400).json({
         success: false,
         message: "Customer is required",
       });
     }
- 
+
     if (!address_id) {
       return res.status(400).json({
         success: false,
-        message:
-          "Billing address is required",
+        message: "Billing address is required",
       });
     }
- 
+
     if (!invoice_date) {
       return res.status(400).json({
         success: false,
-        message:
-          "Invoice date is required",
+        message: "Invoice date is required",
       });
     }
 
     if (!payment_mode) {
       return res.status(400).json({
         success: false,
-        message:
-          "Payment mode is required",
+        message: "Payment mode is required",
       });
     }
- 
+
     if (
       grand_total === undefined ||
       grand_total === null ||
@@ -190,11 +159,10 @@ const addInvoice = async (req, res) => {
     ) {
       return res.status(400).json({
         success: false,
-        message:
-          "Grand total must be greater than 0",
+        message: "Grand total must be greater than 0",
       });
     }
- 
+
     try {
       validateItems(items);
     } catch (error) {
@@ -203,87 +171,39 @@ const addInvoice = async (req, res) => {
         message: error.message,
       });
     }
- 
-    const gstInfo =
-      await getGSTType(
-        address_id,
-      );
+
+    const gstInfo = await getGSTType(address_id);
 
     if (!gstInfo.gstApplicable) {
       return res.status(400).json({
         success: false,
-        message:
-          "GST calculation is not applicable for this address country",
+        message: "GST calculation is not applicable for this address country",
       });
     }
- 
-    const gst =
-      calculateGSTFromGrandTotal(
-        grand_total,
-        gstInfo.isSameState,
-      );
- 
-    const calculatedItems =
-      items.map((item, index) => ({
-        item_name:
-          item.item_name.trim(),
 
-        hsn: item.hsn || null,
- 
-        amount:
-          index === 0
-            ? gst.subtotal
-            : 0,
-      }));
+    const gst = calculateGSTFromGrandTotal(grand_total, gstInfo.isSameState);
 
- 
-    const result =
-      await createInvoice(
-        {
-          customer_id,
+    const calculatedItems = items.map((item, index) => ({
+      item_name: item.item_name.trim(),
 
-          address_id,
+      hsn: item.hsn || null,
 
-          invoice_date,
+      amount: index === 0 ? gst.subtotal : 0,
+    }));
 
-          payment_mode,
+    const result = await createInvoice(
+      {
+        customer_id,
 
-          payment_status:
-            payment_status ||
-            "Pending",
+        address_id,
 
-          subtotal:
-            gst.subtotal,
+        invoice_date,
 
-          cgst: gst.cgst,
+        payment_mode,
 
-          sgst: gst.sgst,
+        payment_status: payment_status || "Pending",
 
-          igst: gst.igst,
-
-          grand_total:
-            gst.grand_total,
-
-          note: note || null,
-        },
-
-        calculatedItems,
-      );
- 
-    return res.status(201).json({
-      success: true,
-
-      message:
-        "Invoice created successfully",
-
-      data: {
-        id: result.id,
-
-        invoice_number:
-          result.invoice_number,
-
-        subtotal:
-          gst.subtotal,
+        subtotal: gst.subtotal,
 
         cgst: gst.cgst,
 
@@ -291,107 +211,131 @@ const addInvoice = async (req, res) => {
 
         igst: gst.igst,
 
-        grand_total:
-          gst.grand_total,
+        grand_total: gst.grand_total,
+
+        note: note || null,
+      },
+
+      calculatedItems,
+    );
+
+    return res.status(201).json({
+      success: true,
+
+      message: "Invoice created successfully",
+
+      data: {
+        id: result.id,
+
+        invoice_number: result.invoice_number,
+
+        subtotal: gst.subtotal,
+
+        cgst: gst.cgst,
+
+        sgst: gst.sgst,
+
+        igst: gst.igst,
+
+        grand_total: gst.grand_total,
       },
     });
   } catch (error) {
-    console.error(
-      "Create Invoice Error:",
-      error,
-    );
+    console.error("Create Invoice Error:", error);
 
     return res.status(500).json({
       success: false,
 
-      message:
-        "Failed to create invoice",
+      message: "Failed to create invoice",
 
       error: error.message,
     });
   }
 };
- 
-const getInvoices = async (
-  req,
-  res,
-) => {
+
+const getInvoices = async (req, res) => {
   try {
-    const invoices =
-      await getAllInvoices();
+    const invoices = await getAllInvoices();
 
     return res.status(200).json({
       success: true,
 
-      message:
-        "Invoices fetched successfully",
+      message: "Invoices fetched successfully",
 
       data: invoices,
     });
   } catch (error) {
-    console.error(
-      "Get Invoices Error:",
-      error,
-    );
+    console.error("Get Invoices Error:", error);
 
     return res.status(500).json({
       success: false,
 
-      message:
-        "Failed to fetch invoices",
+      message: "Failed to fetch invoices",
 
       error: error.message,
     });
   }
 };
- 
-const getInvoice = async (
-  req,
-  res,
-) => {
+
+
+
+const getCustomerInvoices = async (req, res) => {
+  try {
+    const { customerId } = req.params;
+
+    const invoices = await getInvoicesByCustomerId(customerId);
+
+    return res.status(200).json({
+      success: true,
+      message: "Customer invoices fetched successfully",
+      data: invoices,
+    });
+  } catch (error) {
+    console.error("Get Customer Invoices Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch customer invoices",
+      error: error.message,
+    });
+  }
+};
+
+
+const getInvoice = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const invoice =
-      await getInvoiceById(id);
+    const invoice = await getInvoiceById(id);
 
     if (!invoice) {
       return res.status(404).json({
         success: false,
-        message:
-          "Invoice not found",
+        message: "Invoice not found",
       });
     }
 
     return res.status(200).json({
       success: true,
 
-      message:
-        "Invoice fetched successfully",
+      message: "Invoice fetched successfully",
 
       data: invoice,
     });
   } catch (error) {
-    console.error(
-      "Get Invoice Error:",
-      error,
-    );
+    console.error("Get Invoice Error:", error);
 
     return res.status(500).json({
       success: false,
 
-      message:
-        "Failed to fetch invoice",
+      message: "Failed to fetch invoice",
 
       error: error.message,
     });
   }
 };
- 
-const editInvoice = async (
-  req,
-  res,
-) => {
+
+const editInvoice = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -405,39 +349,35 @@ const editInvoice = async (
       note,
       items,
     } = req.body;
- 
+
     if (!customer_id) {
       return res.status(400).json({
         success: false,
-        message:
-          "Customer is required",
+        message: "Customer is required",
       });
     }
- 
+
     if (!address_id) {
       return res.status(400).json({
         success: false,
-        message:
-          "Billing address is required",
+        message: "Billing address is required",
       });
     }
- 
+
     if (!invoice_date) {
       return res.status(400).json({
         success: false,
-        message:
-          "Invoice date is required",
+        message: "Invoice date is required",
       });
     }
- 
+
     if (!payment_mode) {
       return res.status(400).json({
         success: false,
-        message:
-          "Payment mode is required",
+        message: "Payment mode is required",
       });
     }
- 
+
     if (
       grand_total === undefined ||
       grand_total === null ||
@@ -447,11 +387,10 @@ const editInvoice = async (
     ) {
       return res.status(400).json({
         success: false,
-        message:
-          "Grand total must be greater than 0",
+        message: "Grand total must be greater than 0",
       });
     }
- 
+
     try {
       validateItems(items);
     } catch (error) {
@@ -460,93 +399,40 @@ const editInvoice = async (
         message: error.message,
       });
     }
- 
-    const gstInfo =
-      await getGSTType(
-        address_id,
-      );
+
+    const gstInfo = await getGSTType(address_id);
 
     if (!gstInfo.gstApplicable) {
       return res.status(400).json({
         success: false,
-        message:
-          "GST calculation is not applicable for this address country",
+        message: "GST calculation is not applicable for this address country",
       });
     }
- 
-    const gst =
-      calculateGSTFromGrandTotal(
-        grand_total,
-        gstInfo.isSameState,
-      );
- 
-    const calculatedItems =
-      items.map((item, index) => ({
-        item_name:
-          item.item_name.trim(),
 
-        hsn: item.hsn || null,
+    const gst = calculateGSTFromGrandTotal(grand_total, gstInfo.isSameState);
 
-        amount:
-          index === 0
-            ? gst.subtotal
-            : 0,
-      }));
+    const calculatedItems = items.map((item, index) => ({
+      item_name: item.item_name.trim(),
 
-   
-    const updated =
-      await updateInvoice(
-        id,
-        {
-          customer_id,
+      hsn: item.hsn || null,
 
-          address_id,
+      amount: index === 0 ? gst.subtotal : 0,
+    }));
 
-          invoice_date,
+    const updated = await updateInvoice(
+      id,
+      {
+        customer_id,
 
-          payment_mode,
+        address_id,
 
-          payment_status:
-            payment_status ||
-            "Pending",
+        invoice_date,
 
-          subtotal:
-            gst.subtotal,
+        payment_mode,
 
-          cgst: gst.cgst,
+        payment_status: payment_status || "Pending",
 
-          sgst: gst.sgst,
-
-          igst: gst.igst,
-
-          grand_total:
-            gst.grand_total,
-
-          note: note || null,
-        },
-
-        calculatedItems,
-      );
-
-    if (!updated) {
-      return res.status(404).json({
-        success: false,
-        message:
-          "Invoice not found",
-      });
-    }
- 
-    return res.status(200).json({
-      success: true,
-
-      message:
-        "Invoice updated successfully",
-
-      data: {
-        id,
-
-        subtotal:
-          gst.subtotal,
+        subtotal: gst.subtotal,
 
         cgst: gst.cgst,
 
@@ -554,75 +440,89 @@ const editInvoice = async (
 
         igst: gst.igst,
 
-        grand_total:
-          gst.grand_total,
+        grand_total: gst.grand_total,
+
+        note: note || null,
       },
-    });
-  } catch (error) {
-    console.error(
-      "Update Invoice Error:",
-      error,
+
+      calculatedItems,
     );
 
-    return res.status(500).json({
-      success: false,
-
-      message:
-        "Failed to update invoice",
-
-      error: error.message,
-    });
-  }
-};
- 
-const removeInvoice = async (
-  req,
-  res,
-) => {
-  try {
-    const { id } = req.params;
-
-    const result =
-      await deleteInvoice(id);
-
-    if (
-      result.affectedRows === 0
-    ) {
+    if (!updated) {
       return res.status(404).json({
         success: false,
-        message:
-          "Invoice not found",
+        message: "Invoice not found",
       });
     }
 
     return res.status(200).json({
       success: true,
 
-      message:
-        "Invoice deleted successfully",
+      message: "Invoice updated successfully",
+
+      data: {
+        id,
+
+        subtotal: gst.subtotal,
+
+        cgst: gst.cgst,
+
+        sgst: gst.sgst,
+
+        igst: gst.igst,
+
+        grand_total: gst.grand_total,
+      },
     });
   } catch (error) {
-    console.error(
-      "Delete Invoice Error:",
-      error,
-    );
+    console.error("Update Invoice Error:", error);
 
     return res.status(500).json({
       success: false,
 
-      message:
-        "Failed to delete invoice",
+      message: "Failed to update invoice",
 
       error: error.message,
     });
   }
 };
- 
+
+const removeInvoice = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await deleteInvoice(id);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Invoice not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+
+      message: "Invoice deleted successfully",
+    });
+  } catch (error) {
+    console.error("Delete Invoice Error:", error);
+
+    return res.status(500).json({
+      success: false,
+
+      message: "Failed to delete invoice",
+
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   addInvoice,
   getInvoices,
+    getCustomerInvoices,
   getInvoice,
   editInvoice,
   removeInvoice,
 };
-
