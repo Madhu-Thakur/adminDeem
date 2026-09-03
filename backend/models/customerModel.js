@@ -26,7 +26,7 @@ const createCustomer = async (customerData) => {
       company_name || null,
       phone || null,
       email || null,
-      status || "Active",
+      Number(status ?? 1),
     ],
   );
 
@@ -100,7 +100,7 @@ const updateCustomer = async (id, customerData) => {
       company_name || null,
       phone || null,
       email || null,
-      status || "Active",
+      Number(status ?? 1),
       id,
     ],
   );
