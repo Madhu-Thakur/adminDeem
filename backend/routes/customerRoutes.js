@@ -9,17 +9,13 @@ const {
 } = require("../controllers/customerControllers");
 
 const router = express.Router();
-
-// Create Customer
+ 
 router.post("/", addCustomer);
-
-// Get All Customers
+ 
 router.get("/", getCustomers);
-
-// Get Customer By ID
+ 
 router.get("/:id", getCustomer);
-
-// Update Customer
+ 
 router.put("/:id", editCustomer);
 
 // Delete Customer
