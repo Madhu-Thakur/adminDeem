@@ -97,7 +97,7 @@ const InvoiceSection = ({ customerId }) => {
 
   return (
     <div>
-      {/* Section Header */}
+    
       <button
         type="button"
         onClick={() => {
@@ -163,14 +163,12 @@ const InvoiceSection = ({ customerId }) => {
         )}
       </button>
 
-      {/* Error */}
       {error && (
         <div className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-deem-red dark:border-red-900/40 dark:bg-red-950/20">
           {error}
         </div>
       )}
 
-      {/* Invoice Content */}
       {isOpen && hasInvoices && (
         <div className="mt-5 overflow-hidden rounded-2xl border border-[#e6edf2] dark:border-gray-700">
           <div className="overflow-x-auto">

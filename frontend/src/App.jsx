@@ -12,6 +12,7 @@ import AddInvoice from "./pages/AddInvoice";
 import CustomerDetails from "./pages/CustomerDetails";
 import EditCustomer from "./pages/EditCustomer";
 import AddVoucher from "./pages/AddVoucher";
+import Vouchers from "./pages/Vouchers";
 
 
 const App = () => {
@@ -39,7 +40,8 @@ const App = () => {
           <Route path="/students" element={<div>Students</div>} />
           <Route path="/users" element={<div>Users</div>} />
           <Route path="/teams" element={<div>Teams</div>} />
-        <Route path="/accounts/voucher" element={<AddVoucher />} />
+        <Route path="/accounts/voucher" element={<Vouchers />} />
+        <Route path="/accounts/voucher/add" element={<AddVoucher />} />
           <Route path="/tasks" element={<div>Tasks</div>} />
           <Route path="/interview" element={<div>Interview</div>} />
           <Route path="/new-joining" element={<div>New Joining</div>} />

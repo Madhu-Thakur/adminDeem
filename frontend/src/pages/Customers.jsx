@@ -1,4 +1,4 @@
- import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Plus,
@@ -62,8 +62,7 @@ const Customers = () => {
         String(customer.id).includes(searchText);
 
       const matchesStatus =
-        statusFilter === "all" ||
-        customer.status?.toLowerCase() === statusFilter;
+        statusFilter === "all" || String(customer.status) === statusFilter;
 
       return matchesSearch && matchesStatus;
     });
@@ -99,12 +98,9 @@ const Customers = () => {
     try {
       setError("");
 
-      const response = await fetch(
-        `${CUSTOMER_API_URL}/${customer.id}`,
-        {
-          method: "DELETE",
-        },
-      );
+      const response = await fetch(`${CUSTOMER_API_URL}/${customer.id}`, {
+        method: "DELETE",
+      });
 
       const result = await parseJson(response);
 
@@ -112,17 +108,12 @@ const Customers = () => {
         throw new Error(result.message || "Failed to delete customer");
       }
 
-      setCustomers((prev) =>
-        prev.filter((item) => item.id !== customer.id),
-      );
+      setCustomers((prev) => prev.filter((item) => item.id !== customer.id));
 
       setCurrentPage((page) =>
         Math.min(
           page,
-          Math.max(
-            1,
-            Math.ceil((filteredCustomers.length - 1) / PAGE_SIZE),
-          ),
+          Math.max(1, Math.ceil((filteredCustomers.length - 1) / PAGE_SIZE)),
         ),
       );
     } catch (err) {
@@ -187,8 +178,8 @@ const Customers = () => {
             className="h-11 px-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#0b0f14] text-sm text-gray-700 dark:text-gray-200 outline-none focus:border-deem-red transition cursor-pointer"
           >
             <option value="all">All Status</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
+            <option value="1">Active</option>
+            <option value="0">Inactive</option>
           </select>
         </div>
 
@@ -202,9 +193,7 @@ const Customers = () => {
                 <th className="px-5 py-3.5">Email</th>
                 <th className="px-5 py-3.5">Phone</th>
                 <th className="px-5 py-3.5">Status</th>
-                <th className="w-[160px] px-5 py-3.5 text-center">
-                  Actions
-                </th>
+                <th className="w-[160px] px-5 py-3.5 text-center">Actions</th>
               </tr>
             </thead>
 
@@ -256,15 +245,14 @@ const Customers = () => {
                     <td className="px-5 py-4">
                       <span
                         className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
-                          customer.status?.toLowerCase() === "active"
+                          Number(customer.status) === 1
                             ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400"
                             : "bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-400"
                         }`}
                       >
-                        {customer.status || "Inactive"}
+                        {Number(customer.status) === 1 ? "Active" : "Inactive"}
                       </span>
                     </td>
-
                     <td className="w-[160px] px-5 py-4">
                       <div className="flex items-center justify-center gap-2">
                         <button
@@ -315,9 +303,7 @@ const Customers = () => {
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() =>
-                setCurrentPage((prev) => Math.max(prev - 1, 1))
-              }
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
               className="w-9 h-9 rounded-lg border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-500 disabled:opacity-40 cursor-pointer"
             >
@@ -325,30 +311,27 @@ const Customers = () => {
             </button>
 
             {filteredCustomers.length > 0 &&
-              Array.from(
-                { length: totalPages },
-                (_, index) => index + 1,
-              ).map((page) => (
-                <button
-                  key={page}
-                  type="button"
-                  onClick={() => setCurrentPage(page)}
-                  className={`w-9 h-9 rounded-lg text-sm font-medium transition cursor-pointer ${
-                    currentPage === page
-                      ? "bg-deem-blue text-white"
-                      : "border border-gray-200 dark:border-gray-700 text-gray-500 hover:bg-gray-50"
-                  }`}
-                >
-                  {page}
-                </button>
-              ))}
+              Array.from({ length: totalPages }, (_, index) => index + 1).map(
+                (page) => (
+                  <button
+                    key={page}
+                    type="button"
+                    onClick={() => setCurrentPage(page)}
+                    className={`w-9 h-9 rounded-lg text-sm font-medium transition cursor-pointer ${
+                      currentPage === page
+                        ? "bg-deem-blue text-white"
+                        : "border border-gray-200 dark:border-gray-700 text-gray-500 hover:bg-gray-50"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ),
+              )}
 
             <button
               type="button"
               onClick={() =>
-                setCurrentPage((prev) =>
-                  Math.min(prev + 1, totalPages),
-                )
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
               }
               disabled={currentPage >= totalPages}
               className="w-9 h-9 rounded-lg border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-500 disabled:opacity-40 cursor-pointer"

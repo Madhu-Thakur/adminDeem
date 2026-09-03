@@ -198,8 +198,7 @@ const CustomerDetails = () => {
           />
         </div>
       </div>
-
-      {/* Address */}
+ 
       <CollapsibleSection title="Address">
         {addresses.length === 0 ? (
           <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -224,8 +223,7 @@ const CustomerDetails = () => {
           </div>
         )}
       </CollapsibleSection>
-
-      {/* Services */}
+ 
       <CollapsibleSection title="Services">
         {services.length === 0 ? (
           <div className="py-10 text-center text-gray-500 dark:text-gray-400">
@@ -244,8 +242,7 @@ const CustomerDetails = () => {
           </div>
         )}
       </CollapsibleSection>
-
-      {/* Invoices */}
+ 
       <CustomerInvoices customerId={id} />
     </div>
   );

@@ -1,4 +1,4 @@
- 
+
 export const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL;
 
@@ -6,6 +6,8 @@ export const CUSTOMER_API_URL = `${API_BASE_URL}/api/customers`;
 export const ADDRESS_API_URL = `${API_BASE_URL}/api/addresses`;
 export const SERVICE_API_URL = `${API_BASE_URL}/api/services`;
 export const INVOICE_API_URL = `${API_BASE_URL}/api/invoices`;
+export const VOUCHER_API_URL = `${API_BASE_URL}/api/vouchers`;
+export const AVAILABLE_SALE_INVOICES_URL = `${API_BASE_URL}/api/vouchers/available-invoices`;
 
 export async function parseJson(response) {
   const contentType = (

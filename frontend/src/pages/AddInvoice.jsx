@@ -132,7 +132,6 @@ const AddInvoice = () => {
 
   return (
     <div className="space-y-6">
-      {/* Page Heading */}
       <div>
         <h1 className="text-2xl font-semibold text-gray-800 dark:text-gray-100">
           {editId ? "Edit Invoice" : "Add Invoice"}
@@ -145,14 +144,12 @@ const AddInvoice = () => {
         </p>
       </div>
 
-      {/* Error */}
       {submitError && (
         <div className="rounded-xl border border-deem-red/20 bg-red-50 px-4 py-3 text-sm text-deem-red">
           {submitError}
         </div>
       )}
-
-      {/* Invoice Form */}
+ 
       <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-[#11161c]">
         <InvoiceForm
           initialData={initialData}

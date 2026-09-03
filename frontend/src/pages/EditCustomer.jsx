@@ -1,4 +1,3 @@
- 
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
@@ -19,7 +18,7 @@ const EditCustomer = () => {
     companyName: "",
     email: "",
     phone: "",
-    status: "Active",
+    status: "1",
   });
 
   const [loading, setLoading] = useState(true);
@@ -33,9 +32,7 @@ const EditCustomer = () => {
         const result = await response.json();
 
         if (!response.ok || !result.success) {
-          throw new Error(
-            result.message || "Failed to fetch customer",
-          );
+          throw new Error(result.message || "Failed to fetch customer");
         }
 
         const customer = result.data;
@@ -45,7 +42,7 @@ const EditCustomer = () => {
           companyName: customer.company_name || "",
           email: customer.email || "",
           phone: customer.phone || "",
-          status: customer.status || "Active",
+          status: String(customer.status ?? 1),
         });
       } catch (error) {
         console.error("Error fetching customer:", error);
@@ -78,15 +75,19 @@ const EditCustomer = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          customer_name: formData.customerName,
+          company_name: formData.companyName,
+          email: formData.email,
+          phone: formData.phone,
+          status: Number(formData.status),
+        }),
       });
 
       const result = await response.json();
 
       if (!response.ok || !result.success) {
-        throw new Error(
-          result.message || "Failed to update customer",
-        );
+        throw new Error(result.message || "Failed to update customer");
       }
 
       alert("Customer updated successfully");
@@ -212,8 +213,8 @@ const EditCustomer = () => {
                 outline-none
               "
             >
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
+              <option value="1">Active</option>
+              <option value="0">Inactive</option>
             </select>
           </div>
         </div>
@@ -268,13 +269,7 @@ const EditCustomer = () => {
   );
 };
 
-const InputField = ({
-  label,
-  name,
-  value,
-  onChange,
-  type = "text",
-}) => {
+const InputField = ({ label, name, value, onChange, type = "text" }) => {
   return (
     <div>
       <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
