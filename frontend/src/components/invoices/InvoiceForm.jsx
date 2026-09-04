@@ -199,9 +199,7 @@ const InvoiceForm = ({
 
   const item2Amt = 0;
 
-  // Always taken from the shared GST utility so the UI can never
-  // diverge from the calculation (utility already zeroes GST for
-  // non-Indian addresses).
+ 
   const cgst = gstCalculation.cgst;
   const sgst = gstCalculation.sgst;
   const igst = gstCalculation.igst;
