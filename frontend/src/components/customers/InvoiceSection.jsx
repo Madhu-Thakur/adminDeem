@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { ChevronDown, ChevronRight, FileText } from "lucide-react";
-
-const API_URL = "http://localhost:5000/api/invoices";
+import { INVOICE_API_URL } from "../../utils/api";
 
 const InvoiceSection = ({ customerId }) => {
   const [invoices, setInvoices] = useState([]);
@@ -20,7 +19,7 @@ const InvoiceSection = ({ customerId }) => {
       setError("");
 
       const response = await fetch(
-        `${API_URL}/customer/${customerId}`,
+        `${INVOICE_API_URL}}/customer/${customerId}`,
       );
 
       const result = await response.json();

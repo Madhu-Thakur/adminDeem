@@ -26,6 +26,8 @@ const formatCurrency = (value) =>
 const Voucher = () => {
   const navigate = useNavigate();
 
+  const today = new Date().toISOString().split("T")[0];
+
   const [availableInvoices, setAvailableInvoices] = useState([]);
   const [loadingInvoices, setLoadingInvoices] = useState(false);
 
@@ -36,7 +38,6 @@ const Voucher = () => {
   const [transactionNumber, setTransactionNumber] = useState("");
   const [narration, setNarration] = useState("");
 
-  // Purchase manual financial values
   const [amount, setAmount] = useState("");
   const [cgst, setCgst] = useState("");
   const [sgst, setSgst] = useState("");
@@ -176,6 +177,7 @@ const Voucher = () => {
           name="transactionDate"
           value={transactionDate}
           onChange={(e) => setTransactionDate(e.target.value)}
+          max = {today}
           className={inputClass}
         />
         {errors.transactionDate && (

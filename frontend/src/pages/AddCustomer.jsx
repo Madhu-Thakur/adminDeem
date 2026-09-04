@@ -40,7 +40,6 @@ const AddCustomer = () => {
         setPageLoading(true);
         setError("");
 
-        // GET http://localhost:5000/api/customers/:id
         const response = await fetch(`${CUSTOMER_API_URL}/${editId}`);
         const result = await parseJson(response);
 

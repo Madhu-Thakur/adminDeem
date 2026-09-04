@@ -20,6 +20,7 @@ const AddInvoice = () => {
 
   const params = new URLSearchParams(location.search);
   const editId = params.get("id");
+  const isViewMode = params.get("view") === "true";
 
   // Load invoice for edit
   useEffect(() => {
@@ -134,12 +135,18 @@ const AddInvoice = () => {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold text-gray-800 dark:text-gray-100">
-          {editId ? "Edit Invoice" : "Add Invoice"}
+          {editId
+            ? isViewMode
+              ? "View Invoice"
+              : "Edit Invoice"
+            : "Add Invoice"}
         </h1>
 
         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
           {editId
-            ? "Update invoice details"
+            ? isViewMode
+              ? "Invoice details (view only)"
+              : "Update invoice details"
             : "Create a new invoice"}
         </p>
       </div>
@@ -155,6 +162,7 @@ const AddInvoice = () => {
           initialData={initialData}
           onSubmit={handleSubmit}
           onCancel={handleCancel}
+          isViewMode={isViewMode}
         />
       </div>
     </div>

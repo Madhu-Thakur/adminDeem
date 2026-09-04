@@ -1,10 +1,10 @@
  
 import { useEffect, useState } from "react";
-
+import { Download } from "lucide-react";
 import CollapsibleSection from "./CollapsibleSection";
 import { INVOICE_API_URL } from "../../utils/api";
 import { formatCurrency, formatDate } from "../../utils/invoiceUtils";
-
+import { downloadInvoicePdf } from "../../utils/downloadInvoicePdf";
 const CustomerInvoices = ({ customerId }) => {
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -77,6 +77,10 @@ const CustomerInvoices = ({ customerId }) => {
                 <th className="px-5 py-3.5">
                   Status
                 </th>
+
+                <th className="px-5 py-3.5 text-right">
+                  Actions
+                </th>
               </tr>
             </thead>
 
@@ -108,6 +112,35 @@ const CustomerInvoices = ({ customerId }) => {
                     >
                       {invoice.payment_status || "-"}
                     </span>
+                  </td>
+
+                  <td className="px-5 py-4">
+                    <div className="flex items-center justify-end">
+                      <button
+                        type="button"
+                        onClick={() => downloadInvoicePdf(invoice.id)}
+                        title="Download Invoice"
+                        className="
+                          flex
+                          h-9
+                          w-9
+                          cursor-pointer
+                          items-center
+                          justify-center
+                          rounded-lg
+                          border
+                          border-gray-200
+                          text-gray-500
+                          transition
+                          hover:border-deem-blue
+                          hover:text-deem-blue
+                          dark:border-gray-700
+                          dark:text-gray-400
+                        "
+                      >
+                        <Download size={16} />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

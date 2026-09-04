@@ -17,8 +17,7 @@ const formatCurrency = (value) =>
 
 const formatDate = (date) => {
   if (!date) return "-";
-
-  // Use the date portion only (YYYY-MM-DD) to avoid timezone shifting
+  
   const [year, month, day] = String(date).slice(0, 10).split("-");
 
   if (!year || !month || !day) return "-";
@@ -254,7 +253,9 @@ const Vouchers = () => {
                           <button
                             type="button"
                             onClick={() =>
-                              navigate(`/invoices/add?id=${voucher.invoice_id}`)
+                              navigate(
+                                `/invoices/add?id=${voucher.invoice_id}&view=true`
+                              )
                             }
                             title="View invoice"
                             className="text-deem-blue dark:text-blue-300 hover:underline transition cursor-pointer font-mono text-xs"

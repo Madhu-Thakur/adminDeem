@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 
-import { Save, IndianRupee, Calendar } from "lucide-react";
+import { Save, Download, IndianRupee, Calendar } from "lucide-react";
+
+import { downloadInvoicePdf } from "../../utils/downloadInvoicePdf";
 
 import { paymentModes } from "../../data/invoiceData";
 import { validateInvoice } from "../../validation/invoiceValidation";
@@ -9,8 +11,13 @@ import {
   formatCurrency,
 } from "../../utils/invoiceUtils";
 
-const API_CUSTOMERS = "http://localhost:5000/api/customers";
-const API_ADDRESSES = "http://localhost:5000/api/addresses/customer";
+import {
+  CUSTOMER_API_URL,
+  ADDRESS_API_URL,
+} from "../../utils/api";
+
+const API_CUSTOMERS = CUSTOMER_API_URL;
+const API_ADDRESSES = `${ADDRESS_API_URL}/customer`;
 
 const hsnOptions = [
   {
@@ -23,14 +30,18 @@ const hsnOptions = [
   },
   {
     value: "999294",
-    label:
-      "Other education and training services nowhere else classified",
+    label: "Other education and training services nowhere else classified",
   },
 ];
 
-const paymentStatusOptions = ["Paid", "Pending", "Partial"];
+const paymentStatusOptions = ["Paid", "Pending"];
 
-const InvoiceForm = ({ onSubmit, onCancel, initialData }) => {
+const InvoiceForm = ({
+  onSubmit,
+  onCancel,
+  initialData,
+  isViewMode = false,
+}) => {
   const [customers, setCustomers] = useState([]);
   const [addresses, setAddresses] = useState([]);
 
@@ -42,7 +53,6 @@ const InvoiceForm = ({ onSubmit, onCancel, initialData }) => {
   const [formData, setFormData] = useState({
     customerId: initialData?.customerId || "",
     addressId: initialData?.addressId || "",
-
 
     invoiceDate: initialData?.invoiceDate || "",
 
@@ -63,7 +73,7 @@ const InvoiceForm = ({ onSubmit, onCancel, initialData }) => {
   });
 
   const [errors, setErrors] = useState({});
- 
+
   useEffect(() => {
     const fetchCustomers = async () => {
       try {
@@ -74,9 +84,7 @@ const InvoiceForm = ({ onSubmit, onCancel, initialData }) => {
         const result = await response.json();
 
         if (!response.ok) {
-          throw new Error(
-            result.message || "Failed to fetch customers",
-          );
+          throw new Error(result.message || "Failed to fetch customers");
         }
 
         setCustomers(result.data || []);
@@ -90,7 +98,7 @@ const InvoiceForm = ({ onSubmit, onCancel, initialData }) => {
 
     fetchCustomers();
   }, []);
- 
+
   useEffect(() => {
     const fetchAddresses = async () => {
       if (!formData.customerId) {
@@ -102,16 +110,12 @@ const InvoiceForm = ({ onSubmit, onCancel, initialData }) => {
         setLoadingAddresses(true);
         setApiError("");
 
-        const response = await fetch(
-          `${API_ADDRESSES}/${formData.customerId}`,
-        );
+        const response = await fetch(`${API_ADDRESSES}/${formData.customerId}`);
 
         const result = await response.json();
 
         if (!response.ok) {
-          throw new Error(
-            result.message || "Failed to fetch addresses",
-          );
+          throw new Error(result.message || "Failed to fetch addresses");
         }
 
         setAddresses(result.data || []);
@@ -127,9 +131,7 @@ const InvoiceForm = ({ onSubmit, onCancel, initialData }) => {
     fetchAddresses();
   }, [formData.customerId]);
 
-  
   const handleChange = (e) => {
-
     const name = e.target.name;
     const value = e.target.value;
 
@@ -138,7 +140,6 @@ const InvoiceForm = ({ onSubmit, onCancel, initialData }) => {
         ...prev,
         customerId: value,
         addressId: "",
-
       }));
 
       setAddresses([]);
@@ -172,61 +173,51 @@ const InvoiceForm = ({ onSubmit, onCancel, initialData }) => {
     }
   };
 
-  
   const selectedAddress = addresses.find(
-    (address) =>
-      Number(address.id) === Number(formData.addressId),
+    (address) => Number(address.id) === Number(formData.addressId),
   );
- 
+
   const DEEM_STATE = "Punjab";
 
-  const country =
-    selectedAddress?.country?.trim()?.toLowerCase() || "";
+  const country = selectedAddress?.country?.trim()?.toLowerCase() || "";
 
-  const state =
-    selectedAddress?.state?.trim()?.toLowerCase() || "";
+  const state = selectedAddress?.state?.trim()?.toLowerCase() || "";
 
   const isIndianAddress = country === "india";
 
-  const isSameState =
-    isIndianAddress &&
-    state === DEEM_STATE.toLowerCase();
+  const isSameState = isIndianAddress && state === DEEM_STATE.toLowerCase();
 
   const gstCalculation = calculateGSTFromGrandTotal(
     formData.grandTotal,
     isSameState,
+    isIndianAddress,
   );
- 
 
-  const calculatedAmount = gstCalculation.amount;
+  const calculatedAmount = gstCalculation.taxableAmount;
 
   const item1Amt = calculatedAmount;
 
   const item2Amt = 0;
 
-  let cgst = 0;
-  let sgst = 0;
-  let igst = 0;
-
-  if (isIndianAddress) {
-    cgst = gstCalculation.cgst;
-    sgst = gstCalculation.sgst;
-    igst = gstCalculation.igst;
-  }
+  // Always taken from the shared GST utility so the UI can never
+  // diverge from the calculation (utility already zeroes GST for
+  // non-Indian addresses).
+  const cgst = gstCalculation.cgst;
+  const sgst = gstCalculation.sgst;
+  const igst = gstCalculation.igst;
 
   const grandTotal = gstCalculation.grandTotal;
- 
+
   const handleSubmit = (e) => {
     e.preventDefault();
- 
+
     const validationData = {
       ...formData,
       item1Amount: item1Amt,
       item2Amount: item2Amt,
     };
 
-    const validationErrors =
-      validateInvoice(validationData);
+    const validationErrors = validateInvoice(validationData);
 
     setErrors(validationErrors);
 
@@ -254,7 +245,6 @@ const InvoiceForm = ({ onSubmit, onCancel, initialData }) => {
       });
     }
 
-
     const invoiceData = {
       customer_id: Number(formData.customerId),
 
@@ -262,22 +252,26 @@ const InvoiceForm = ({ onSubmit, onCancel, initialData }) => {
 
       invoice_date: formData.invoiceDate,
 
-
       payment_mode: formData.paymentMode,
 
       payment_status: formData.paymentStatus,
 
       grand_total: Number(formData.grandTotal),
 
-      items,
+      cgst: gstCalculation.cgst,
 
+      sgst: gstCalculation.sgst,
+
+      igst: gstCalculation.igst,
+
+      items,
 
       note: formData.note,
     };
 
     onSubmit(invoiceData);
   };
- 
+
   const inputClass = (hasError) => {
     const classes = [
       "w-full",
@@ -379,24 +373,22 @@ const InvoiceForm = ({ onSubmit, onCancel, initialData }) => {
     "block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2";
 
   const errorClass = "mt-1 text-xs text-deem-red";
- 
+
+  const today = new Date().toISOString().split("T")[0];
+
   return (
     <form onSubmit={handleSubmit} className="space-y-7">
-      {/* API Error */}
+      <fieldset disabled={isViewMode} className="contents">
       {apiError && (
         <div className="rounded-xl border border-deem-red/20 bg-red-50 px-4 py-3 text-sm text-deem-red">
           {apiError}
         </div>
       )}
-
-      {/* Invoice Information */}
       <section>
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-          {/* Customer */}
           <div>
             <label className={labelClass}>
-              Customer{" "}
-              <span className="text-deem-red">*</span>
+              Customer <span className="text-deem-red">*</span>
             </label>
 
             <select
@@ -407,48 +399,30 @@ const InvoiceForm = ({ onSubmit, onCancel, initialData }) => {
               disabled={loadingCustomers}
             >
               <option value="">
-                {loadingCustomers
-                  ? "Loading Customers..."
-                  : "Select Customer"}
+                {loadingCustomers ? "Loading Customers..." : "Select Customer"}
               </option>
 
               {customers.map((customer) => (
-                <option
-                  key={customer.id}
-                  value={customer.id}
-                >
-
+                <option key={customer.id} value={customer.id}>
                   {customer.customer_name}
                 </option>
               ))}
             </select>
 
-            {errors.customer && (
-              <p className={errorClass}>
-                {errors.customer}
-              </p>
-            )}
+            {errors.customer && <p className={errorClass}>{errors.customer}</p>}
           </div>
 
-          {/* Address */}
           <div>
             <label className={labelClass}>
-              Customer Address{" "}
-              <span className="text-deem-red">*</span>
+              Customer Address <span className="text-deem-red">*</span>
             </label>
 
             <select
               name="addressId"
               value={formData.addressId}
               onChange={handleChange}
-              className={selectClass(
-                errors.customerAddress,
-              )}
-              disabled={
-                !formData.customerId ||
-                loadingAddresses
-              }
-
+              className={selectClass(errors.customerAddress)}
+              disabled={!formData.customerId || loadingAddresses}
             >
               <option value="">
                 {!formData.customerId
@@ -459,10 +433,7 @@ const InvoiceForm = ({ onSubmit, onCancel, initialData }) => {
               </option>
 
               {addresses.map((address) => (
-                <option
-                  key={address.id}
-                  value={address.id}
-                >
+                <option key={address.id} value={address.id}>
                   {[
                     address.address,
                     address.city,
@@ -472,27 +443,21 @@ const InvoiceForm = ({ onSubmit, onCancel, initialData }) => {
                   ]
                     .filter(Boolean)
                     .join(", ")}
-
                 </option>
               ))}
             </select>
 
             {errors.customerAddress && (
-              <p className={errorClass}>
-                {errors.customerAddress}
-              </p>
+              <p className={errorClass}>{errors.customerAddress}</p>
             )}
           </div>
         </div>
 
-        {/* Date / Payment */}
         <div className="mt-5 grid grid-cols-1 gap-5 md:grid-cols-3">
-          {/* Invoice Date */}
 
           <div>
             <label className={labelClass}>
-              Invoice Date{" "}
-              <span className="text-deem-red">*</span>
+              Invoice Date <span className="text-deem-red">*</span>
             </label>
 
             <div className="relative">
@@ -506,38 +471,28 @@ const InvoiceForm = ({ onSubmit, onCancel, initialData }) => {
                 name="invoiceDate"
                 value={formData.invoiceDate}
                 onChange={handleChange}
-                className={`${inputClass(
-                  errors.invoiceDate,
-                )} pl-11`}
+                max={today}
+                className={`${inputClass(errors.invoiceDate)} pl-11`}
               />
             </div>
 
             {errors.invoiceDate && (
-              <p className={errorClass}>
-                {errors.invoiceDate}
-              </p>
+              <p className={errorClass}>{errors.invoiceDate}</p>
             )}
           </div>
-
-          {/* Payment Mode */}
-
+ 
           <div>
             <label className={labelClass}>
-              Payment Mode{" "}
-              <span className="text-deem-red">*</span>
+              Payment Mode <span className="text-deem-red">*</span>
             </label>
 
             <select
               name="paymentMode"
               value={formData.paymentMode}
               onChange={handleChange}
-              className={selectClass(
-                errors.paymentMode,
-              )}
+              className={selectClass(errors.paymentMode)}
             >
-              <option value="">
-                Select Payment Mode
-              </option>
+              <option value="">Select Payment Mode</option>
 
               {paymentModes.map((mode) => (
                 <option key={mode} value={mode}>
@@ -547,26 +502,18 @@ const InvoiceForm = ({ onSubmit, onCancel, initialData }) => {
             </select>
 
             {errors.paymentMode && (
-              <p className={errorClass}>
-                {errors.paymentMode}
-              </p>
+              <p className={errorClass}>{errors.paymentMode}</p>
             )}
           </div>
 
-          {/* Payment Status */}
-
           <div>
-            <label className={labelClass}>
-              Payment Status
-            </label>
+            <label className={labelClass}>Payment Status</label>
 
             <select
               name="paymentStatus"
               value={formData.paymentStatus}
               onChange={handleChange}
-              className={selectClass(
-                errors.paymentStatus,
-              )}
+              className={selectClass(errors.paymentStatus)}
             >
               {paymentStatusOptions.map((status) => (
                 <option key={status} value={status}>
@@ -577,21 +524,17 @@ const InvoiceForm = ({ onSubmit, onCancel, initialData }) => {
           </div>
         </div>
       </section>
-
-      {/* Item 1 */}
-
+ 
       <section>
         <h3 className="mb-4 text-sm font-semibold text-gray-800 dark:text-gray-100">
           Item 1
         </h3>
 
         <div className="grid grid-cols-1 gap-5 md:grid-cols-5">
-          {/* Item Name */}
 
           <div className="md:col-span-2">
             <label className={labelClass}>
-              Item Name{" "}
-              <span className="text-deem-red">*</span>
+              Item Name <span className="text-deem-red">*</span>
             </label>
 
             <input
@@ -600,51 +543,35 @@ const InvoiceForm = ({ onSubmit, onCancel, initialData }) => {
               value={formData.item1Name}
               onChange={handleChange}
               placeholder="Enter item name"
-              className={inputClass(
-                errors.item1Name,
-              )}
+              className={inputClass(errors.item1Name)}
             />
 
             {errors.item1Name && (
-              <p className={errorClass}>
-                {errors.item1Name}
-              </p>
+              <p className={errorClass}>{errors.item1Name}</p>
             )}
           </div>
 
-          {/* HSN */}
-
           <div>
-            <label className={labelClass}>
-              HSN
-            </label>
+            <label className={labelClass}>HSN</label>
 
             <select
               name="item1Hsn"
               value={formData.item1Hsn}
               onChange={handleChange}
-              className={selectClass(
-                errors.item1Hsn,
-              )}
+              className={selectClass(errors.item1Hsn)}
             >
               <option value="">Select HSN</option>
 
               {hsnOptions.map((hsn) => (
-                <option
-                  key={hsn.value}
-                  value={hsn.value}
-                >
+                <option key={hsn.value} value={hsn.value}>
                   {hsn.label}
                 </option>
               ))}
             </select>
           </div>
-
-          {/* Amount - AUTO */}
+ 
           <div className="md:col-span-2">
-            <label className={labelClass}>
-              Amount
-            </label>
+            <label className={labelClass}>Amount</label>
 
             <div className="relative">
               <IndianRupee
@@ -666,8 +593,7 @@ const InvoiceForm = ({ onSubmit, onCancel, initialData }) => {
           </div>
         </div>
       </section>
-
-      {/* Item 2 */}
+ 
       <section>
         <h3 className="mb-4 text-sm font-semibold text-gray-800 dark:text-gray-100">
           Item 2
@@ -677,11 +603,9 @@ const InvoiceForm = ({ onSubmit, onCancel, initialData }) => {
         </h3>
 
         <div className="grid grid-cols-1 gap-5 md:grid-cols-5">
-          {/* Item Name */}
+ 
           <div className="md:col-span-2">
-            <label className={labelClass}>
-              Item Name
-            </label>
+            <label className={labelClass}>Item Name</label>
 
             <input
               type="text"
@@ -689,39 +613,30 @@ const InvoiceForm = ({ onSubmit, onCancel, initialData }) => {
               value={formData.item2Name}
               onChange={handleChange}
               placeholder="Enter item name"
-              className={inputClass(
-                errors.item2Name,
-              )}
+              disabled
+              className={`${inputClass(errors.item2Name)} cursor-not-allowed bg-gray-50 dark:bg-gray-800/50 text-gray-600 dark:text-gray-400`}
             />
 
             {errors.item2Name && (
-              <p className={errorClass}>
-                {errors.item2Name}
-              </p>
+              <p className={errorClass}>{errors.item2Name}</p>
             )}
           </div>
 
           {/* HSN */}
           <div>
-            <label className={labelClass}>
-              HSN
-            </label>
+            <label className={labelClass}>HSN</label>
 
             <select
               name="item2Hsn"
               value={formData.item2Hsn}
               onChange={handleChange}
-              className={selectClass(
-                errors.item2Hsn,
-              )}
+              disabled
+              className={`${selectClass(errors.item2Hsn)} cursor-not-allowed bg-gray-50 dark:bg-gray-800/50 text-gray-600 dark:text-gray-400`}
             >
               <option value="">Select HSN</option>
 
               {hsnOptions.map((hsn) => (
-                <option
-                  key={hsn.value}
-                  value={hsn.value}
-                >
+                <option key={hsn.value} value={hsn.value}>
                   {hsn.label}
                 </option>
               ))}
@@ -730,9 +645,7 @@ const InvoiceForm = ({ onSubmit, onCancel, initialData }) => {
 
           {/* Amount - AUTO */}
           <div className="md:col-span-2">
-            <label className={labelClass}>
-              Amount
-            </label>
+            <label className={labelClass}>Amount</label>
 
             <div className="relative">
               <IndianRupee
@@ -760,9 +673,7 @@ const InvoiceForm = ({ onSubmit, onCancel, initialData }) => {
         <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
           {/* CGST */}
           <div>
-            <label className={labelClass}>
-              CGST 9%
-            </label>
+            <label className={labelClass}>CGST 9%</label>
 
             <div className="relative">
               <IndianRupee
@@ -781,9 +692,7 @@ const InvoiceForm = ({ onSubmit, onCancel, initialData }) => {
 
           {/* SGST */}
           <div>
-            <label className={labelClass}>
-              SGST 9%
-            </label>
+            <label className={labelClass}>SGST 9%</label>
 
             <div className="relative">
               <IndianRupee
@@ -802,9 +711,7 @@ const InvoiceForm = ({ onSubmit, onCancel, initialData }) => {
 
           {/* IGST */}
           <div>
-            <label className={labelClass}>
-              IGST 18%
-            </label>
+            <label className={labelClass}>IGST 18%</label>
 
             <div className="relative">
               <IndianRupee
@@ -825,8 +732,7 @@ const InvoiceForm = ({ onSubmit, onCancel, initialData }) => {
         {/* Grand Total */}
         <div className="mt-5 max-w-md">
           <label className={labelClass}>
-            Grand Total{" "}
-            <span className="text-deem-red">*</span>
+            Grand Total <span className="text-deem-red">*</span>
           </label>
 
           <div className="relative">
@@ -844,9 +750,7 @@ const InvoiceForm = ({ onSubmit, onCancel, initialData }) => {
               min="0"
               step="0.01"
               inputMode="decimal"
-              className={`${inputClass(
-                errors.grandTotal,
-              )} pl-11 font-semibold`}
+              className={`${inputClass(errors.grandTotal)} pl-11 font-semibold`}
             />
           </div>
 
@@ -855,9 +759,7 @@ const InvoiceForm = ({ onSubmit, onCancel, initialData }) => {
           </p>
 
           {errors.grandTotal && (
-            <p className={errorClass}>
-              {errors.grandTotal}
-            </p>
+            <p className={errorClass}>{errors.grandTotal}</p>
           )}
         </div>
       </section>
@@ -865,9 +767,7 @@ const InvoiceForm = ({ onSubmit, onCancel, initialData }) => {
       {/* Note */}
 
       <section>
-        <label className={labelClass}>
-          Note
-        </label>
+        <label className={labelClass}>Note</label>
 
         <textarea
           name="note"
@@ -878,16 +778,15 @@ const InvoiceForm = ({ onSubmit, onCancel, initialData }) => {
           className={textareaClass(errors.note)}
         />
 
-        {errors.note && (
-          <p className={errorClass}>
-            {errors.note}
-          </p>
-        )}
+        {errors.note && <p className={errorClass}>{errors.note}</p>}
       </section>
+
+      </fieldset>
 
       {/* Buttons */}
 
       <div className="flex flex-wrap items-center gap-3 pt-2">
+        {!isViewMode && (
         <button
           type="submit"
           className="
@@ -910,6 +809,33 @@ const InvoiceForm = ({ onSubmit, onCancel, initialData }) => {
           <Save size={16} />
           Save Invoice
         </button>
+        )}
+
+        {isViewMode && (
+          <button
+            type="button"
+            onClick={() => downloadInvoicePdf(initialData?.id)}
+            className="
+              flex
+              h-11
+              cursor-pointer
+              items-center
+              justify-center
+              gap-2
+              rounded-xl
+              bg-deem-red
+              px-6
+              text-sm
+              font-medium
+              text-white
+              transition
+              hover:bg-[#d94335]
+            "
+          >
+            <Download size={16} />
+            Download Invoice PDF
+          </button>
+        )}
 
         <button
           type="button"

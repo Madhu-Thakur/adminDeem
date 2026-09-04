@@ -179,7 +179,7 @@ const handleSubmit = async (e) => {
           className="flex items-center gap-2 px-6 h-11 bg-deem-blue hover:bg-[#0f3a55] text-white rounded-xl font-medium text-sm transition cursor-pointer"
         >
           <CreditCard size={16} />
-          Payment
+          payment
         </button> */}
 
         <div className="flex items-center gap-2 ml-2">

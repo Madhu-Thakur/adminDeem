@@ -1,9 +1,9 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { INVOICE_API_URL } from "../utils/api";
 
 const InvoiceContext = createContext();
 
-const API_URL = "http://localhost:5000/api/invoices";
-
+const response = await fetch(INVOICE_API_URL);
 export const InvoiceProvider = ({ children }) => {
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(false);
