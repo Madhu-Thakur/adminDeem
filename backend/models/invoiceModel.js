@@ -50,8 +50,7 @@ const createInvoice = async (invoiceData, items) => {
       grand_total,
       note,
     } = invoiceData;
-
-    // Insert Invoice
+ 
     const [invoiceResult] = await connection.execute(
       `
           INSERT INTO invoices
@@ -88,8 +87,7 @@ const createInvoice = async (invoiceData, items) => {
     );
 
     const invoiceId = invoiceResult.insertId;
-
-    // Insert Invoice Items
+ 
     for (const item of items) {
       await connection.execute(
         `
@@ -329,7 +327,6 @@ const updateInvoice = async (id, invoiceData, items) => {
       return false;
     }
 
-    // Delete old invoice items
     await connection.execute(
       `
         DELETE FROM invoice_items
@@ -338,7 +335,6 @@ const updateInvoice = async (id, invoiceData, items) => {
       [id],
     );
 
-    // Insert updated invoice items
     for (const item of items) {
       await connection.execute(
         `
@@ -380,7 +376,6 @@ const deleteInvoice = async (id) => {
       [id],
     );
 
-    // Delete the invoice
     const [result] = await connection.execute(
       `
         DELETE FROM invoices

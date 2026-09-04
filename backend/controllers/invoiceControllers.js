@@ -9,14 +9,25 @@ const {
 
 const db = require("../config/db");
 
-const calculateGSTFromGrandTotal = (grandTotal, isSameState) => {
+const calculateGSTFromGrandTotal = (grandTotal, gstApplicable, isSameState) => {
   const total = Number(grandTotal);
 
   if (!Number.isFinite(total) || total <= 0) {
     throw new Error("Grand total must be a valid positive amount");
   }
 
-  // Grand Total already includes 18% GST
+  // Outside India → GST not applicable
+  if (!gstApplicable) {
+    return {
+      subtotal: Number(total.toFixed(2)),
+      cgst: 0,
+      sgst: 0,
+      igst: 0,
+      grand_total: Number(total.toFixed(2)),
+    };
+  }
+
+  // Grand total includes 18% GST
   const taxableAmount = total / 1.18;
 
   let cgst = 0;
@@ -24,23 +35,17 @@ const calculateGSTFromGrandTotal = (grandTotal, isSameState) => {
   let igst = 0;
 
   if (isSameState) {
-    // CGST 9% + SGST 9%
     cgst = taxableAmount * 0.09;
     sgst = taxableAmount * 0.09;
   } else {
-    // IGST 18%
     igst = taxableAmount * 0.18;
   }
 
   return {
     subtotal: Number(taxableAmount.toFixed(2)),
-
     cgst: Number(cgst.toFixed(2)),
-
     sgst: Number(sgst.toFixed(2)),
-
     igst: Number(igst.toFixed(2)),
-
     grand_total: Number(total.toFixed(2)),
   };
 };
@@ -65,22 +70,26 @@ const getGSTType = async (addressId) => {
 
   const address = rows[0];
 
-  // DEEM registered state
-  const DEEM_STATE = "Gujarat";
+  // Must be the same as frontend
+  const DEEM_STATE = "Punjab";
 
-  const customerCountry = String(address.country || "").trim();
+  const customerCountry = String(address.country || "")
+    .trim()
+    .toLowerCase();
 
-  const customerState = String(address.state || "").trim();
+  const customerState = String(address.state || "")
+    .trim()
+    .toLowerCase();
 
-  // GST not applicable outside India
-  if (customerCountry.toLowerCase() !== "india") {
+  // Outside India
+  if (customerCountry !== "india") {
     return {
       gstApplicable: false,
       isSameState: false,
     };
   }
 
-  const isSameState = customerState.toLowerCase() === DEEM_STATE.toLowerCase();
+  const isSameState = customerState === DEEM_STATE.toLowerCase();
 
   return {
     gstApplicable: true,
@@ -174,14 +183,11 @@ const addInvoice = async (req, res) => {
 
     const gstInfo = await getGSTType(address_id);
 
-    if (!gstInfo.gstApplicable) {
-      return res.status(400).json({
-        success: false,
-        message: "GST calculation is not applicable for this address country",
-      });
-    }
-
-    const gst = calculateGSTFromGrandTotal(grand_total, gstInfo.isSameState);
+    const gst = calculateGSTFromGrandTotal(
+      grand_total,
+      gstInfo.gstApplicable,
+      gstInfo.isSameState,
+    );
 
     const calculatedItems = items.map((item, index) => ({
       item_name: item.item_name.trim(),
@@ -277,8 +283,6 @@ const getInvoices = async (req, res) => {
   }
 };
 
-
-
 const getCustomerInvoices = async (req, res) => {
   try {
     const { customerId } = req.params;
@@ -300,7 +304,6 @@ const getCustomerInvoices = async (req, res) => {
     });
   }
 };
-
 
 const getInvoice = async (req, res) => {
   try {
@@ -409,7 +412,11 @@ const editInvoice = async (req, res) => {
       });
     }
 
-    const gst = calculateGSTFromGrandTotal(grand_total, gstInfo.isSameState);
+    const gst = calculateGSTFromGrandTotal(
+      grand_total,
+      gstInfo.gstApplicable,
+      gstInfo.isSameState,
+    );
 
     const calculatedItems = items.map((item, index) => ({
       item_name: item.item_name.trim(),
@@ -521,7 +528,7 @@ const removeInvoice = async (req, res) => {
 module.exports = {
   addInvoice,
   getInvoices,
-    getCustomerInvoices,
+  getCustomerInvoices,
   getInvoice,
   editInvoice,
   removeInvoice,
