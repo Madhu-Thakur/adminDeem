@@ -7,9 +7,16 @@ const {
 const { getInvoiceById } = require("../models/invoiceModel");
 
 const isNonNegativeNumber = (value) => {
-  return value !== undefined && value !== null && value !== "" && Number.isFinite(Number(value)) && Number(value) >= 0;
+  return (
+    value !== undefined &&
+    value !== null &&
+    value !== "" &&
+    Number.isFinite(Number(value)) &&
+    Number(value) >= 0
+  );
 };
 
+// Create Voucher
 const addVoucher = async (req, res) => {
   try {
     const {
@@ -63,6 +70,7 @@ const addVoucher = async (req, res) => {
     let finalSgst = 0;
     let finalIgst = 0;
 
+    // Sale Voucher
     if (voucher_type === "Sale") {
       if (!invoice_id) {
         return res.status(400).json({
@@ -79,35 +87,55 @@ const addVoucher = async (req, res) => {
           message: "Selected invoice not found",
         });
       }
-
+ 
       finalInvoiceId = Number(invoice_id);
       finalCustomerId = invoice.customer_id;
       finalAmount = Number(invoice.grand_total) || 0;
+
       finalCgst = Number(invoice.cgst) || 0;
       finalSgst = Number(invoice.sgst) || 0;
       finalIgst = Number(invoice.igst) || 0;
     } else {
-      // Purchase
+      // Purchase Voucher
+
       if (!isNonNegativeNumber(amount)) {
         return res.status(400).json({
           success: false,
-          message: "Amount is required and must be a valid non-negative number",
+          message:
+            "Amount is required and must be a valid non-negative number",
         });
       }
 
-      if (cgst !== undefined && cgst !== null && cgst !== "" && Number(cgst) < 0) {
+      if (
+        cgst !== undefined &&
+        cgst !== null &&
+        cgst !== "" &&
+        Number(cgst) < 0
+      ) {
         return res.status(400).json({
           success: false,
           message: "CGST cannot be negative",
         });
       }
-      if (sgst !== undefined && sgst !== null && sgst !== "" && Number(sgst) < 0) {
+
+      if (
+        sgst !== undefined &&
+        sgst !== null &&
+        sgst !== "" &&
+        Number(sgst) < 0
+      ) {
         return res.status(400).json({
           success: false,
           message: "SGST cannot be negative",
         });
       }
-      if (igst !== undefined && igst !== null && igst !== "" && Number(igst) < 0) {
+
+      if (
+        igst !== undefined &&
+        igst !== null &&
+        igst !== "" &&
+        Number(igst) < 0
+      ) {
         return res.status(400).json({
           success: false,
           message: "IGST cannot be negative",
@@ -152,6 +180,7 @@ const addVoucher = async (req, res) => {
   }
 };
 
+// Get All Vouchers
 const getVouchers = async (req, res) => {
   try {
     const vouchers = await getAllVouchers();
@@ -172,6 +201,7 @@ const getVouchers = async (req, res) => {
   }
 };
 
+// Get Available Sale Invoices
 const getAvailableSaleInvoicesList = async (req, res) => {
   try {
     const invoices = await getAvailableSaleInvoices();

@@ -45,5 +45,9 @@ export const validateVoucher = (data) => {
     });
   }
 
+  if (!data.narration?.trim()) {
+    errors.narration = "Narration is required";
+  }
+
   return errors;
 };

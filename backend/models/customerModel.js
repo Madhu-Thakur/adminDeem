@@ -1,5 +1,6 @@
  const db = require("../config/db");
 
+// Create Customer
 const createCustomer = async (customerData) => {
   const {
     customer_name,
@@ -17,15 +18,19 @@ const createCustomer = async (customerData) => {
         company_name,
         phone,
         email,
+        Balance,
+        due_date,
         status
       )
-      VALUES (?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
     `,
     [
       customer_name,
       company_name || null,
       phone || null,
       email || null,
+      0,
+      null,
       Number(status ?? 1),
     ],
   );
@@ -43,6 +48,8 @@ const getAllCustomers = async () => {
         company_name,
         email,
         phone,
+        Balance,
+        due_date,
         status,
         created_at
       FROM customers
@@ -63,6 +70,8 @@ const getCustomerById = async (id) => {
         company_name,
         email,
         phone,
+        Balance,
+        due_date,
         status,
         created_at
       FROM customers
@@ -108,6 +117,26 @@ const updateCustomer = async (id, customerData) => {
   return result;
 };
 
+// Update Customer Payment
+const updateCustomerPayment = async (id, payment, dueDate) => {
+  const [result] = await db.execute(
+    `
+      UPDATE customers
+      SET
+        Balance = ?,
+        due_date = ?
+      WHERE id = ?
+    `,
+    [
+      Number(payment || 0),
+      dueDate || null,
+      id,
+    ],
+  );
+
+  return result;
+};
+
 // Delete Customer
 const deleteCustomer = async (id) => {
   const [result] = await db.execute(
@@ -126,5 +155,6 @@ module.exports = {
   getAllCustomers,
   getCustomerById,
   updateCustomer,
+  updateCustomerPayment,
   deleteCustomer,
 };

@@ -3,6 +3,7 @@ const {
   getAllCustomers,
   getCustomerById,
   updateCustomer,
+  updateCustomerPayment,
   deleteCustomer,
 } = require("../models/customerModel");
 
@@ -139,6 +140,54 @@ const editCustomer = async (req, res) => {
   }
 };
 
+// Update Customer Payment
+const updatePayment = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { payment, dueDate } = req.body;
+
+    if (payment === undefined || payment === null || payment === "") {
+      return res.status(400).json({
+        success: false,
+        message: "Payment is required",
+      });
+    }
+
+    const paymentAmount = Number(payment);
+
+    if (Number.isNaN(paymentAmount) || paymentAmount < 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Payment must be a valid positive amount",
+      });
+    }
+
+    const customer = await getCustomerById(id);
+
+    if (!customer) {
+      return res.status(404).json({
+        success: false,
+        message: "Customer not found",
+      });
+    }
+
+    await updateCustomerPayment(id, paymentAmount, dueDate);
+
+    res.status(200).json({
+      success: true,
+      message: "Customer payment updated successfully",
+    });
+  } catch (error) {
+    console.error("Update customer payment error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to update customer payment",
+    });
+  }
+};
+
+
 // Delete Customer
 const removeCustomer = async (req, res) => {
   try {
@@ -173,5 +222,6 @@ module.exports = {
   getCustomers,
   getCustomer,
   editCustomer,
+  updatePayment,
   removeCustomer,
 };

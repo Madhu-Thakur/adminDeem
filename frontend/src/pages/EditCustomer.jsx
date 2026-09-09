@@ -6,6 +6,7 @@ import AddressSection from "../components/customers/AddressSection";
 import ServiceDetails from "../components/customers/ServiceDetails";
 import CollapsibleSection from "../components/customers/CollapsibleSection";
 import CustomerInvoices from "../components/customers/CustomerInvoices";
+import CustomerPaymentModal from "../components/customers/CustomerPaymentModal";
 
 import { CUSTOMER_API_URL } from "../utils/api";
 
@@ -21,8 +22,12 @@ const EditCustomer = () => {
     status: "1",
   });
 
+  const [customerData, setCustomerData] = useState(null);
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchCustomer = async () => {
@@ -36,6 +41,8 @@ const EditCustomer = () => {
         }
 
         const customer = result.data;
+
+        setCustomerData(customer);
 
         setFormData({
           customerName: customer.customer_name || "",
@@ -99,6 +106,24 @@ const EditCustomer = () => {
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleOpenPayment = () => {
+    setIsPaymentModalOpen(true);
+  };
+
+  const handleClosePayment = () => {
+    setIsPaymentModalOpen(false);
+  };
+
+  const handlePaymentSuccess = ({ payment, due_date }) => {
+    setCustomerData((prev) => ({
+      ...prev,
+      Balance: payment.toFixed(2),
+      due_date,
+    }));
+
+    setIsPaymentModalOpen(false);
   };
 
   if (loading) {
@@ -221,6 +246,26 @@ const EditCustomer = () => {
 
         <div className="mt-7 flex gap-3">
           <button
+            type="button"
+            onClick={handleOpenPayment}
+            disabled={!customerData}
+            className="
+              px-6
+              h-11
+              border
+              border-deem-blue
+              text-deem-blue
+              hover:bg-blue-50
+              dark:hover:bg-blue-950/20
+              disabled:opacity-50
+              rounded-xl
+              font-medium
+            "
+          >
+            Payment
+          </button>
+
+          <button
             type="submit"
             disabled={saving}
             className="
@@ -255,6 +300,13 @@ const EditCustomer = () => {
           </button>
         </div>
       </form>
+
+      <CustomerPaymentModal
+        isOpen={isPaymentModalOpen}
+        onClose={handleClosePayment}
+        customer={customerData}
+        onSuccess={handlePaymentSuccess}
+      />
 
       <CollapsibleSection title="Address">
         <AddressSection customerId={id} />

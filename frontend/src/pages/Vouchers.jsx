@@ -17,7 +17,7 @@ const formatCurrency = (value) =>
 
 const formatDate = (date) => {
   if (!date) return "-";
-  
+
   const [year, month, day] = String(date).slice(0, 10).split("-");
 
   if (!year || !month || !day) return "-";
@@ -88,6 +88,7 @@ const Vouchers = () => {
         voucher.transaction_type?.toLowerCase().includes(searchText) ||
         voucher.customer_name?.toLowerCase().includes(searchText) ||
         voucher.invoice_number?.toLowerCase().includes(searchText);
+
       return matchesSearch;
     });
   }, [vouchers, search]);
@@ -98,9 +99,12 @@ const Vouchers = () => {
   );
 
   const safePage = Math.min(currentPage, totalPages);
+
   const from =
     filteredVouchers.length === 0 ? 0 : (safePage - 1) * PAGE_SIZE + 1;
+
   const to = Math.min(safePage * PAGE_SIZE, filteredVouchers.length);
+
   const paginatedVouchers = filteredVouchers.slice(
     (safePage - 1) * PAGE_SIZE,
     safePage * PAGE_SIZE,
@@ -157,6 +161,7 @@ const Vouchers = () => {
               size={17}
               className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
             />
+
             <input
               type="text"
               value={search}
@@ -207,13 +212,14 @@ const Vouchers = () => {
                   <th className="px-2 py-2 text-right">CGST</th>
                   <th className="px-2 py-2 text-right">SGST</th>
                   <th className="px-2 py-2 text-right">IGST</th>
+                  <th className="px-2 py-2">Actions</th>
                 </tr>
               </thead>
 
               <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                 {paginatedVouchers.length === 0 ? (
                   <tr>
-                    <td colSpan={10}>
+                    <td colSpan={11}>
                       <div className="px-5 py-12 text-center text-gray-500 dark:text-gray-400">
                         <ReceiptText
                           size={32}
@@ -235,26 +241,26 @@ const Vouchers = () => {
                           voucher.serial_number,
                         )}
                       </td>
- 
+
                       <td className="px-2 py-3 text-gray-500 dark:text-gray-400 font-mono text-xs">
                         {voucher.transaction_number}
                       </td>
- 
+
                       <td className="px-2 py-3 text-gray-500 dark:text-gray-400">
                         {formatDate(voucher.transaction_date)}
                       </td>
- 
+
                       <td className="px-2 py-3 text-gray-500 dark:text-gray-400">
                         {voucher.transaction_type}
                       </td>
- 
+
                       <td className="px-2 py-3 text-gray-500 dark:text-gray-400 font-mono text-xs">
                         {voucher.invoice_id ? (
                           <button
                             type="button"
                             onClick={() =>
                               navigate(
-                                `/invoices/add?id=${voucher.invoice_id}&view=true`
+                                `/invoices/add?id=${voucher.invoice_id}&view=true`,
                               )
                             }
                             title="View invoice"
@@ -266,27 +272,31 @@ const Vouchers = () => {
                           "-"
                         )}
                       </td>
- 
+
                       <td className="px-2 py-3 font-medium text-gray-700 dark:text-gray-200">
                         {voucher.customer_name && voucher.customer_id
                           ? `${voucher.customer_name} (${voucher.customer_id})`
                           : "-"}
                       </td>
- 
+
                       <td className="px-2 py-3 text-right text-gray-700 dark:text-gray-200">
                         {formatCurrency(voucher.amount)}
                       </td>
- 
+
                       <td className="px-2 py-3 text-right text-gray-500 dark:text-gray-400">
                         {formatCurrency(voucher.cgst)}
                       </td>
- 
+
                       <td className="px-2 py-3 text-right text-gray-500 dark:text-gray-400">
                         {formatCurrency(voucher.sgst)}
                       </td>
- 
+
                       <td className="px-2 py-3 text-right text-gray-500 dark:text-gray-400">
                         {formatCurrency(voucher.igst)}
+                      </td>
+
+                      <td className="px-2 py-3 text-gray-400 dark:text-gray-500">
+                        -
                       </td>
                     </tr>
                   ))

@@ -5,6 +5,7 @@ const {
   getCustomers,
   getCustomer,
   editCustomer,
+  updatePayment,
   removeCustomer,
 } = require("../controllers/customerControllers");
 
@@ -17,6 +18,8 @@ router.get("/", getCustomers);
 router.get("/:id", getCustomer);
  
 router.put("/:id", editCustomer);
+
+router.put("/:id/payment", updatePayment);
 
 // Delete Customer
 router.delete("/:id", removeCustomer);

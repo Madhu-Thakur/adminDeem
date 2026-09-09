@@ -16,6 +16,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+
 app.use("/api/customers", customerRoutes);
 app.use("/api/addresses", addressRoutes);
 app.use("/api/services", serviceRoutes);
@@ -32,11 +33,8 @@ app.get("/", (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 
-if(process.env.PRODUCTION){
-  app.listen(PORT, () => {
+app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
-}
-
 
 module.exports = app;
