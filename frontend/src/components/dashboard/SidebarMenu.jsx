@@ -4,7 +4,7 @@ import { ChevronDown, ChevronRight } from "lucide-react";
 
 import { modules } from "../../data/moduleData";
 
-const SidebarMenu = ({ collapsed }) => {
+const SidebarMenu = ({ collapsed, onNavigate }) => {
   const [openGroups, setOpenGroups] = useState({});
   const location = useLocation();
 
@@ -44,13 +44,14 @@ const SidebarMenu = ({ collapsed }) => {
         <NavLink
           key={module.path}
           to={module.path}
+          onClick={onNavigate}
           title={collapsed ? module.title : ""}
           className={({ isActive }) => `
             ${rowClass}
             ${collapsed ? "justify-center w-full h-12" : ""}
             ${
               isActive
-                ? "bg-white !text-deem-blue shadow-sm"
+                ? "bg-white text-deem-blue! shadow-sm"
                 : "text-white/80 hover:bg-white/10 hover:text-white"
             }
           `}
@@ -63,8 +64,7 @@ const SidebarMenu = ({ collapsed }) => {
         </NavLink>
       );
     }
-
-    // Parent menu => toggle button expanding its child menu.
+ 
     const isOpen = isGroupOpen(moduleKey);
 
     return (
@@ -114,6 +114,7 @@ const SidebarMenu = ({ collapsed }) => {
               <NavLink
                 key={`${moduleKey}-${child.title}`}
                 to={child.path}
+                onClick={onNavigate}
                 className={`
                   flex
                   items-center
@@ -125,7 +126,7 @@ const SidebarMenu = ({ collapsed }) => {
                   transition
                   ${
                     childActive
-                     ? "bg-white !text-deem-blue shadow-sm font-medium"
+                     ? "bg-white text-deem-blue! shadow-sm font-medium"
                       : "text-white/70 hover:bg-white/10 hover:text-white"
                   }
                 `}
@@ -186,6 +187,7 @@ const SidebarMenu = ({ collapsed }) => {
                       <NavLink
                         key={`${groupKey}-${leaf.title}`}
                         to={leaf.path}
+                        onClick={onNavigate}
                         className={`
                           flex
                           items-center

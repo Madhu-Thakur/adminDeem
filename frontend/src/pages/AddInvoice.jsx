@@ -81,8 +81,7 @@ const AddInvoice = () => {
 
     loadInvoice();
   }, [editId, getInvoice]);
-
-  // Create / Update invoice
+ 
   const handleSubmit = async (invoiceData) => {
     try {
       setSubmitError("");
@@ -103,12 +102,12 @@ const AddInvoice = () => {
     }
   };
 
-  // Cancel
+ 
   const handleCancel = () => {
     navigate("/invoices");
   };
 
-  // Loading state
+ 
   if (loading) {
     return (
       <div className="space-y-6">

@@ -18,3 +18,22 @@ body,
 body {
   min-height: 100vh;
 }
+
+/* Native date input picker indicator visibility */
+input[type="date"] {
+  color-scheme: light;
+}
+
+html.dark input[type="date"] {
+  color-scheme: dark;
+}
+
+/* WebKit/Chromium: ensure the calendar icon is light in dark mode and
+   tinted DEEM red on hover where the platform allows it. */
+html.dark input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+
+html.dark input[type="date"]:hover::-webkit-calendar-picker-indicator {
+  filter: invert(1) sepia(1) saturate(5) hue-rotate(-5deg);
+}

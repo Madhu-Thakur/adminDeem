@@ -11,6 +11,8 @@ import {
   UserPlus,
   CalendarCheck,
   ClipboardList,
+  Megaphone,
+  Bell,
 } from "lucide-react";
 
 export const modules = [
@@ -74,4 +76,15 @@ export const modules = [
     icon: ClipboardList,
     path: "/leave",
   },
+    {
+    title: "Announcement",
+    icon: Megaphone,
+    path: "/announcements",
+  },
+
+  {
+  title: "Notification",
+  icon: Bell,
+  path: "/notifications",
+},
 ];

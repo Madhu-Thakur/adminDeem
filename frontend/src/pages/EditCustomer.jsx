@@ -244,7 +244,7 @@ const EditCustomer = () => {
           </div>
         </div>
 
-        <div className="mt-7 flex gap-3">
+        <div className="mt-7 flex flex-wrap gap-3">
           <button
             type="button"
             onClick={handleOpenPayment}

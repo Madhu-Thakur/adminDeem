@@ -8,8 +8,6 @@ const FeaturedModuleCard = ({ module, onClick, type }) => {
     <div
       onClick={onClick}
       className="
-        col-span-2
-        row-span-2
         rounded-2xl
         bg-white
         dark:bg-[#161b22]

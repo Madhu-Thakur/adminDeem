@@ -25,10 +25,7 @@ const createVoucher = async (voucherData) => {
     let finalSgst = Number(sgst) || 0;
     let finalIgst = Number(igst) || 0;
     let finalInvoiceId = invoice_id || null;
-
-    // ------------------------------------------------------------
-    // SALE VOUCHER
-    // ------------------------------------------------------------
+ 
     if (voucher_type === "Sale") {
       if (!invoice_id) {
         throw new Error("Invoice is required for Sale Voucher");
@@ -144,7 +141,6 @@ const createVoucher = async (voucherData) => {
         ],
       );
 
-      // Deduct invoice grand total from customer balance
       const newBalance = currentBalance - finalAmount;
 
       await connection.execute(

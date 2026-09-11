@@ -79,7 +79,7 @@ const CustomerPaymentModal = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-      <div className="w-full max-w-md rounded-xl bg-white dark:bg-[#161b22] shadow-xl">
+      <div className="w-full max-w-md rounded-xl bg-white dark:bg-[#161b22] shadow-xl max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 px-6 py-4">
           <div>

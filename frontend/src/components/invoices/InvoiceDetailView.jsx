@@ -310,7 +310,7 @@ const InvoiceDetailView = ({ invoice, onClose }) => {
  
 
       <div className="invoice-print-content invoice-print-root bg-white text-gray-900">
-        <div className="invoice-print-card mx-auto max-w-[800px] bg-white p-8">
+        <div className="invoice-print-card mx-auto max-w-200 bg-white p-8">
 
           <div className="invoice-no-break border-b-2 border-gray-800 pb-5">
             <div className="flex items-start justify-between">
@@ -336,7 +336,7 @@ const InvoiceDetailView = ({ invoice, onClose }) => {
             </div>
           </div>
  
-          <div className="invoice-no-break mt-6 grid grid-cols-2 gap-8">
+          <div className="invoice-no-break mt-6 grid grid-cols-1 sm:grid-cols-2 gap-8">
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-500">
                 Invoice Number
@@ -360,7 +360,7 @@ const InvoiceDetailView = ({ invoice, onClose }) => {
             </div>
           </div>
  
-          <div className="invoice-no-break mt-7 grid grid-cols-2 gap-8 border-y border-gray-200 py-5">
+          <div className="invoice-no-break mt-7 grid grid-cols-1 sm:grid-cols-2 gap-8 border-y border-gray-200 py-5">
             <div>
               <p className="text-[10px] font-bold uppercase tracking-wider text-gray-500">
                 Bill To

@@ -94,16 +94,52 @@ const Customers = () => {
     setCurrentPage(1);
   };
 
-  const handleToggleStatus = (customer) => {
-    const nextStatus = Number(customer.status) === 1 ? 0 : 1;
+ const handleToggleStatus = async (customer) => {
+  const currentStatus = Number(customer.status) === 1 ? 1 : 0;
+  const nextStatus = currentStatus === 1 ? 0 : 1;
 
+  try {
+    setError("");
+
+    // Update UI immediately
     setCustomers((prev) =>
       prev.map((item) =>
-        item.id === customer.id ? { ...item, status: nextStatus } : item,
+        item.id === customer.id
+          ? { ...item, status: nextStatus }
+          : item,
       ),
     );
-  };
 
+    const response = await fetch(`${CUSTOMER_API_URL}/${customer.id}/status`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        status: nextStatus,
+      }),
+    });
+
+    const result = await parseJson(response);
+
+    if (!response.ok || !result.success) {
+      throw new Error(result.message || "Failed to update customer status");
+    }
+  } catch (err) {
+    console.error("Update Customer Status Error:", err);
+
+    // Rollback UI if API fails
+    setCustomers((prev) =>
+      prev.map((item) =>
+        item.id === customer.id
+          ? { ...item, status: currentStatus }
+          : item,
+      ),
+    );
+
+    setError(err.message || "Failed to update customer status.");
+  }
+};
   const handleDelete = async (customer) => {
     const confirmed = window.confirm(
       `Are you sure you want to delete ${customer.customer_name}?`,
@@ -151,7 +187,7 @@ const Customers = () => {
 
   return (
     <div>
-      <div className="flex items-start justify-between mb-7">
+      <div className="flex flex-wrap items-start justify-between gap-3 mb-7">
         <div>
           <h1 className="text-3xl font-bold text-deem-blue dark:text-white">
             Customers
@@ -286,7 +322,7 @@ const Customers = () => {
                               : "Inactive — click to set Active"
                           }
                           onClick={() => handleToggleStatus(customer)}
-                          className={`relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition cursor-pointer ${
+                          className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition cursor-pointer ${
                             Number(customer.status) === 1
                               ? "bg-emerald-500"
                               : "bg-gray-300 dark:bg-gray-700"
@@ -315,33 +351,81 @@ const Customers = () => {
                       </div>
                     </td>
 
-                    <td className="w-[160px] px-5 py-4">
+                    <td className="w-40 px-5 py-4">
                       <div className="flex items-center justify-center gap-2">
                         <button
                           type="button"
                           title="View"
                           onClick={() => handleView(customer.id)}
-                          className="w-9 h-9 rounded-lg flex items-center justify-center text-deem-blue hover:bg-blue-50 transition cursor-pointer"
+                          className="
+                            flex
+                            h-9
+                            w-9
+                            cursor-pointer
+                            items-center
+                            justify-center
+                            rounded-lg
+                            border
+                            border-gray-200
+                            text-gray-500
+                            transition
+                            hover:border-deem-blue
+                            hover:text-deem-blue
+                            dark:border-gray-700
+                            dark:text-gray-400
+                          "
                         >
-                          <Eye size={17} />
+                          <Eye size={16} />
                         </button>
 
                         <button
                           type="button"
                           title="Edit"
                           onClick={() => handleEdit(customer.id)}
-                          className="w-9 h-9 rounded-lg flex items-center justify-center text-amber-600 hover:bg-amber-50 transition cursor-pointer"
+                          className="
+                            flex
+                            h-9
+                            w-9
+                            cursor-pointer
+                            items-center
+                            justify-center
+                            rounded-lg
+                            border
+                            border-gray-200
+                            text-gray-500
+                            transition
+                            hover:border-deem-red
+                            hover:text-deem-red
+                            dark:border-gray-700
+                            dark:text-gray-400
+                          "
                         >
-                          <Pencil size={17} />
+                          <Pencil size={16} />
                         </button>
 
                         <button
                           type="button"
                           title="Delete"
                           onClick={() => handleDelete(customer)}
-                          className="w-9 h-9 rounded-lg flex items-center justify-center text-deem-red hover:bg-red-50 transition cursor-pointer"
+                          className="
+                            flex
+                            h-9
+                            w-9
+                            cursor-pointer
+                            items-center
+                            justify-center
+                            rounded-lg
+                            border
+                            border-gray-200
+                            text-gray-500
+                            transition
+                            hover:border-deem-red
+                            hover:text-deem-red
+                            dark:border-gray-700
+                            dark:text-gray-400
+                          "
                         >
-                          <Trash2 size={17} />
+                          <Trash2 size={16} />
                         </button>
                       </div>
                     </td>

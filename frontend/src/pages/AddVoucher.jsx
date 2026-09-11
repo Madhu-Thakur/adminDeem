@@ -393,11 +393,11 @@ const Voucher = () => {
                     (item) => String(item.id) === String(selectedId),
                   );
 
-                  if (invoice?.payment_status === "Paid") {
-                    setInvoiceId("");
-                    setAmount("");
-                    return;
-                  }
+                  // if (invoice?.payment_status === "Paid") {
+                  //   setInvoiceId("");
+                  //   setAmount("");
+                  //   return;
+                  // }
 
                   setInvoiceId(selectedId);
 
@@ -426,7 +426,7 @@ const Voucher = () => {
                   <option
                     key={invoice.id}
                     value={invoice.id}
-                    disabled={invoice.payment_status === "Paid"}
+                    // disabled={invoice.payment_status === "Paid"}
                   >
                     {`${invoice.invoice_number} | ${
                       invoice.customer_name
@@ -611,7 +611,7 @@ const Voucher = () => {
 
       {showSaveForm && (
         <form onSubmit={handleSubmit}>
-          <div className="mt-6 flex items-center gap-3">
+          <div className="mt-6 flex flex-wrap items-center gap-3">
             <button
               type="submit"
               disabled={saving}

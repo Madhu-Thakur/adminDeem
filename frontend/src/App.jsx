@@ -13,6 +13,10 @@ import CustomerDetails from "./pages/CustomerDetails";
 import EditCustomer from "./pages/EditCustomer";
 import AddVoucher from "./pages/AddVoucher";
 import Vouchers from "./pages/Vouchers";
+import Announcements from "./pages/Announcements";
+import AddAnnouncement from "./pages/AddAnnouncement";
+import Notifications from "./pages/Notifications";
+import AddNotification from "./pages/AddNotification";
 
 
 const App = () => {
@@ -28,6 +32,20 @@ const App = () => {
 
         <Route element={<DashboardLayout />}>
           <Route path="/customers" element={<Customers />} />
+
+<Route
+  path="/announcements"
+  element={<Announcements />}
+/>
+
+<Route
+  path="/announcements/add"
+  element={<AddAnnouncement />}
+/>
+
+<Route path="/notifications" element={<Notifications />} />
+<Route path="/notifications/add" element={<AddNotification />} />
+
           <Route path="/customers/add" element={<AddCustomer />} />
           <Route path="/customers/:id" element={<CustomerDetails />} />
 

@@ -55,8 +55,8 @@ const PaymentTable = ({
 
   return (
     <div>
-      <div className="w-full overflow-hidden">
-        <table className="w-full table-fixed text-sm">
+      <div className="w-full overflow-x-auto">
+        <table className="w-full min-w-[900px] text-sm">
           <thead>
             <tr className="bg-gray-50 dark:bg-[#0b0f14] text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
               <th className="px-2 py-2">Customer</th>

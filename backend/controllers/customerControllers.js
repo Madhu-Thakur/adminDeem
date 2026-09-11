@@ -4,6 +4,7 @@ const {
   getCustomerById,
   updateCustomer,
   updateCustomerPayment,
+  updateCustomerStatus,
   deleteCustomer,
 } = require("../models/customerModel");
 
@@ -188,6 +189,59 @@ const updatePayment = async (req, res) => {
 };
 
 
+
+// Update Customer Status
+const updateStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (status === undefined || status === null) {
+      return res.status(400).json({
+        success: false,
+        message: "Status is required",
+      });
+    }
+
+    const customer = await getCustomerById(id);
+
+    if (!customer) {
+      return res.status(404).json({
+        success: false,
+        message: "Customer not found",
+      });
+    }
+
+    const customerStatus = Number(status);
+
+    if (![0, 1].includes(customerStatus)) {
+      return res.status(400).json({
+        success: false,
+        message: "Status must be 0 or 1",
+      });
+    }
+
+    await updateCustomerStatus(id, customerStatus);
+
+    return res.status(200).json({
+      success: true,
+      message: "Customer status updated successfully",
+      data: {
+        status: customerStatus,
+      },
+    });
+  } catch (error) {
+    console.error("Update Customer Status Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update customer status",
+      error: error.message,
+    });
+  }
+};
+
+
 // Delete Customer
 const removeCustomer = async (req, res) => {
   try {
@@ -223,5 +277,6 @@ module.exports = {
   getCustomer,
   editCustomer,
   updatePayment,
+  updateStatus,
   removeCustomer,
 };

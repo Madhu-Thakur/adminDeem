@@ -11,6 +11,8 @@ const addressRoutes = require("./routes/addressRoutes");
 const serviceRoutes = require("./routes/serviceRoutes");
 const invoiceRoutes = require("./routes/invoiceRoutes");
 const voucherRoutes = require("./routes/voucherRoutes");
+const announcementRoutes = require("./routes/announcementRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
 
 const app = express();
 
@@ -22,6 +24,8 @@ app.use("/api/addresses", addressRoutes);
 app.use("/api/services", serviceRoutes);
 app.use("/api/invoices", invoiceRoutes);
 app.use("/api/vouchers", voucherRoutes);
+app.use("/api/announcements", announcementRoutes);
+app.use("/api/notifications", notificationRoutes);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.get("/", (req, res) => {

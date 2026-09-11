@@ -4,8 +4,7 @@ import logo from "../assets/images/logo-1.png";
 import { Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
 
 const Login = () => {
-
-  const navigate = useNavigate();   //for redirecting on the  dashboard
+  const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -23,102 +22,116 @@ const Login = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    // Redirect to dashboard
     navigate("/dashboard");
-
   };
 
   return (
-    <div className="min-h-dvh bg-deem-blue flex items-center justify-center p-6">
-      <div className="w-full max-w-162.5 h-[calc(100dvh-64px)] max-h-162.5 bg-white rounded-3xl shadow-xl overflow-hidden flex">
+    <div className="relative flex min-h-dvh items-center justify-center overflow-hidden px-4 py-8 sm:px-6">
+   
+      <div className="pointer-events-none absolute inset-y-0 left-0 w-1/2 bg-[#dceaf2]" />
+      <div className="pointer-events-none absolute inset-y-0 right-0 w-1/2 bg-[#ffe6e2]" />
+ 
+      <div className="relative z-10 flex w-full max-w-105 flex-col items-center">
+ 
+        <div className="mb-5 sm:mb-6">
+          <img
+            src={logo}
+            alt="DEEM"
+            className="h-auto w-40 sm:w-44"
+          />
+        </div>
+ 
+        <div className="mb-7 text-center sm:mb-8">
+          <h1 className="text-3xl font-bold tracking-tight text-[#10243f] sm:text-4xl">
+            Welcome Back
+          </h1>
 
-        <div className="flex-1 flex items-center justify-center px-8 sm:px-14 lg:px-20">
-          <div className="w-full max-w-125">
-            
-            <div className=" pb-4 flex items-center justify-center">
-              <img src={logo} alt="DEEM" className="w-47.5 h-auto" />
+          <p className="mt-2 text-sm text-[#667892] sm:text-base">
+            Login to continue to DEEM Portal
+          </p>
+        </div>
+ 
+        <div className="w-full rounded-2xl bg-white p-6 shadow-[0_12px_35px_rgba(20,70,103,0.10)] sm:rounded-3xl sm:p-8">
+          <form onSubmit={handleSubmit}>
+         
+            <div>
+              <label className="sr-only" htmlFor="email">
+                Email ID
+              </label>
+
+              <div className="relative">
+                <Mail
+                  size={19}
+                  strokeWidth={1.8}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-[#71839a]"
+                />
+
+                <input
+                  id="email"
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="Enter your email ID"
+                  className="h-12 w-full rounded-lg border border-[#dce4eb] bg-white pl-11 pr-4 text-sm text-[#10243f] outline-none transition placeholder:text-[#8a99ab] focus:border-deem-red focus:ring-2 focus:ring-[#eb5141]/10 sm:h-13 sm:rounded-xl"
+                />
+              </div>
             </div>
 
-            <h2 className="text-3xl font-bold text-[#10243f]">
-              Login to your account
-            </h2>
+            <div className="mt-4">
+              <label className="sr-only" htmlFor="password">
+                Password
+              </label>
 
-            <p className="text-gray-500 mt-4 text-base leading-7">
-              Enter your email ID and password.
-            </p>
+              <div className="relative">
+                <Lock
+                  size={19}
+                  strokeWidth={1.8}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-[#71839a]"
+                />
 
-            <form onSubmit={handleSubmit} className="mt-10">
-              <div>
-                <label className="block text-gray-700 font-medium mb-3">
-                  Email ID
-                </label>
+                <input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="Enter your password"
+                  className="h-12 w-full rounded-lg border border-[#dce4eb] bg-white pl-11 pr-12 text-sm text-[#10243f] outline-none transition placeholder:text-[#8a99ab] focus:border-deem-red focus:ring-2 focus:ring-[#eb5141]/10 sm:h-13 sm:rounded-xl"
+                />
 
-                <div className="relative">
-                  <Mail
-                    size={21}
-                    className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400"
-                  />
-
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="Enter your email ID"
-                    className="w-full h-15 border border-gray-200 rounded-xl pl-14 pr-5 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100 transition"
-                  />
-                </div>
-              </div>
-
-              <div className="mt-7">
-                <label className="block text-gray-700 font-medium mb-3">
-                  Password
-                </label>
-
-                <div className="relative">
-                  <Lock
-                    size={21}
-                    className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400"
-                  />
-
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    placeholder="Enter your password"
-                    className="w-full h-15 border border-gray-200 rounded-xl pl-14 pr-14 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100 transition"
-                  />
-
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700"
-                  >
-                    {showPassword ? <EyeOff size={21} /> : <Eye size={21} />}
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex justify-end mt-4">
                 <button
                   type="button"
-                  className="text-[#263b91] font-medium hover:underline"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#71839a] transition hover:text-deem-red"
                 >
-                  Forgot Password?
+                  {showPassword ? (
+                    <EyeOff size={19} strokeWidth={1.8} />
+                  ) : (
+                    <Eye size={19} strokeWidth={1.8} />
+                  )}
                 </button>
               </div>
+            </div>
 
+            <div className="mt-3 flex justify-end">
               <button
-                type="submit"
-                className="w-full h-15.5 mt-7 bg-deem-red hover:bg-[#d94335] text-white rounded-xl cursor-pointer font-semibold text-lg flex items-center justify-center gap-4 transition"
+                type="button"
+                className="text-xs font-medium text-[#263b91] transition hover:text-deem-red hover:underline sm:text-sm"
               >
-                <span>Login</span>
-                <ArrowRight size={22} />
+                Forgot Password?
               </button>
-            </form>
-          </div>
+            </div>
+
+            <button
+              type="submit"
+              className="mt-5 flex h-12 w-full cursor-pointer items-center justify-center gap-3 rounded-lg bg-deem-red text-sm font-semibold text-white transition hover:bg-[#d94335] sm:h-13 sm:rounded-xl sm:text-base"
+            >
+              <span>Login</span>
+              <ArrowRight size={19} strokeWidth={2} />
+            </button>
+          </form>
         </div>
       </div>
     </div>

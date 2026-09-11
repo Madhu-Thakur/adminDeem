@@ -38,6 +38,23 @@ const createCustomer = async (customerData) => {
   return result.insertId;
 };
 
+
+// Update Customer Status
+const updateCustomerStatus = async (id, status) => {
+  const [result] = await db.execute(
+    `
+      UPDATE customers
+      SET status = ?
+      WHERE id = ?
+    `,
+    [Number(status), id],
+  );
+
+  return result;
+};
+
+
+
 // Get All Customers
 const getAllCustomers = async () => {
   const [rows] = await db.execute(
@@ -157,4 +174,5 @@ module.exports = {
   updateCustomer,
   updateCustomerPayment,
   deleteCustomer,
+  updateCustomerStatus,
 };

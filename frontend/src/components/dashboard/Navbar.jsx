@@ -1,10 +1,10 @@
-import { Bell, LayoutDashboard } from "lucide-react";
+import { Bell, LayoutDashboard, Menu } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import ThemeToggle from "../common/ThemeToggle";
 import ProfileMenu from "./ProfileMenu";
 
-const Navbar = () => {
+const Navbar = ({ onToggleMobileMenu }) => {
   const navigate = useNavigate();
 
   return (
@@ -24,30 +24,54 @@ const Navbar = () => {
         duration-300
       "
     >
-      
-      <button
-        type="button"
-        onClick={() => navigate("/dashboard")}
-        title="Dashboard"
-        className="
-          w-10
-          h-10
-          rounded-lg
-          flex
-          items-center
-          justify-center
-          text-deem-blue
-          dark:text-gray-200
-          hover:bg-gray-100
-          dark:hover:bg-gray-800
-          transition
-          cursor-pointer
-        "
-      >
-        <LayoutDashboard size={21} />
-      </button>
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={onToggleMobileMenu}
+          title="Menu"
+          aria-label="Toggle menu"
+          className="
+            lg:hidden
+            w-10
+            h-10
+            rounded-lg
+            flex
+            items-center
+            justify-center
+            text-gray-600
+            dark:text-gray-300
+            hover:bg-gray-100
+            dark:hover:bg-gray-800
+            transition
+            cursor-pointer
+          "
+        >
+          <Menu size={21} />
+        </button>
 
-    
+        <button
+          type="button"
+          onClick={() => navigate("/dashboard")}
+          title="Dashboard"
+          className="
+            w-10
+            h-10
+            rounded-lg
+            flex
+            items-center
+            justify-center
+            text-deem-blue
+            dark:text-gray-200
+            hover:bg-gray-100
+            dark:hover:bg-gray-800
+            transition
+            cursor-pointer
+          "
+        >
+          <LayoutDashboard size={21} />
+        </button>
+      </div>
+
       <div className="flex items-center gap-2">
         <ThemeToggle />
 

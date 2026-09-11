@@ -164,8 +164,7 @@ const CustomerDetails = () => {
           </button>
         </div>
       </div>
-
-      {/* Customer Information */}
+ 
       <div className="rounded-2xl bg-white dark:bg-[#161b22] border border-gray-200 dark:border-gray-700 p-6">
         <h2 className="text-lg font-semibold text-deem-blue dark:text-white mb-5">
           Customer Information

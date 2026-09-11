@@ -6,6 +6,7 @@ const {
   getCustomer,
   editCustomer,
   updatePayment,
+  updateStatus,
   removeCustomer,
 } = require("../controllers/customerControllers");
 
@@ -16,6 +17,8 @@ router.post("/", addCustomer);
 router.get("/", getCustomers);
  
 router.get("/:id", getCustomer);
+
+router.put("/:id/status", updateStatus);
  
 router.put("/:id", editCustomer);
 
