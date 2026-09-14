@@ -26,6 +26,22 @@ export const modules = [
     icon: FileText,
     path: "/invoices",
   },
+    {
+    title: "Accounts",
+    icon: IndianRupee,
+    path: "/accounts/voucher",
+  },
+     {
+    title: "Announcement",
+    icon: Megaphone,
+    path: "/announcements",
+  },
+
+  {
+  title: "Notification",
+  icon: Bell,
+  path: "/notifications",
+},
   {
     title: "Employees",
     icon: UserRound,
@@ -46,11 +62,7 @@ export const modules = [
     icon: UsersRound,
     path: "/teams",
   },
-  {
-    title: "Accounts",
-    icon: IndianRupee,
-    path: "/accounts/voucher",
-  },
+
   {
     title: "Tasks",
     icon: ListTodo,
@@ -76,15 +88,5 @@ export const modules = [
     icon: ClipboardList,
     path: "/leave",
   },
-    {
-    title: "Announcement",
-    icon: Megaphone,
-    path: "/announcements",
-  },
-
-  {
-  title: "Notification",
-  icon: Bell,
-  path: "/notifications",
-},
+ 
 ];

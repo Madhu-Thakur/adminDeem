@@ -46,6 +46,9 @@ const Vouchers = () => {
 
   const [vouchers, setVouchers] = useState([]);
   const [search, setSearch] = useState("");
+  const [voucherType, setVoucherType] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -55,7 +58,26 @@ const Vouchers = () => {
       setLoading(true);
       setError("");
 
-      const response = await fetch(VOUCHER_API_URL);
+      const params = new URLSearchParams();
+
+      if (voucherType) {
+        params.append("voucher_type", voucherType);
+      }
+
+      if (startDate) {
+        params.append("start_date", startDate);
+      }
+
+      if (endDate) {
+        params.append("end_date", endDate);
+      }
+
+      const queryString = params.toString();
+
+      const response = await fetch(
+        queryString ? `${VOUCHER_API_URL}?${queryString}` : VOUCHER_API_URL,
+      );
+
       const result = await parseJson(response);
 
       if (!response.ok || !result.success) {
@@ -73,13 +95,13 @@ const Vouchers = () => {
 
   useEffect(() => {
     fetchVouchers();
-  }, []);
+  }, [voucherType, startDate, endDate]);
 
   const filteredVouchers = useMemo(() => {
     const searchText = search.trim().toLowerCase();
 
     return vouchers.filter((voucher) => {
-      const matchesSearch =
+      return (
         !searchText ||
         formatVoucherNumber(voucher.voucher_type, voucher.serial_number)
           .toLowerCase()
@@ -87,9 +109,8 @@ const Vouchers = () => {
         voucher.transaction_number?.toLowerCase().includes(searchText) ||
         voucher.transaction_type?.toLowerCase().includes(searchText) ||
         voucher.customer_name?.toLowerCase().includes(searchText) ||
-        voucher.invoice_number?.toLowerCase().includes(searchText);
-
-      return matchesSearch;
+        voucher.invoice_number?.toLowerCase().includes(searchText)
+      );
     });
   }, [vouchers, search]);
 
@@ -112,6 +133,21 @@ const Vouchers = () => {
 
   const handleSearchChange = (e) => {
     setSearch(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleVoucherTypeChange = (e) => {
+    setVoucherType(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleStartDateChange = (e) => {
+    setStartDate(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleEndDateChange = (e) => {
+    setEndDate(e.target.value);
     setCurrentPage(1);
   };
 
@@ -156,40 +192,135 @@ const Vouchers = () => {
 
       <div className="rounded-2xl bg-white dark:bg-[#161b22] border border-[#e6edf2] dark:border-gray-700 overflow-hidden">
         <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700">
-          <div className="relative">
-            <Search
-              size={17}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-            />
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+            {/* Search */}
+            <div className="relative min-w-0 flex-2">
+              <Search
+                size={17}
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+              />
 
-            <input
-              type="text"
-              value={search}
-              onChange={handleSearchChange}
-              placeholder="Search vouchers..."
-              className="
-                w-full
-                h-11
-                pl-11
-                pr-4
-                rounded-xl
-                border
-                border-gray-200
-                dark:border-gray-700
-                bg-white
-                dark:bg-[#0b0f14]
-                text-sm
-                text-gray-700
-                dark:text-gray-200
-                placeholder-gray-400
-                outline-none
-                focus:border-deem-red
-                focus:ring-2
-                focus:ring-red-100
-                dark:focus:ring-red-950/30
-                transition
-              "
-            />
+              <input
+                type="text"
+                value={search}
+                onChange={handleSearchChange}
+                placeholder="Search vouchers..."
+                className="
+          w-full
+          h-11
+          pl-11
+          pr-4
+          rounded-xl
+          border
+          border-gray-200
+          dark:border-gray-700
+          bg-white
+          dark:bg-[#0b0f14]
+          text-sm
+          text-gray-700
+          dark:text-gray-200
+          placeholder-gray-400
+          outline-none
+          focus:border-deem-red
+          focus:ring-2
+          focus:ring-red-100
+          dark:focus:ring-red-950/30
+          transition
+        "
+              />
+            </div>
+
+            {/* Voucher Type */}
+            <div className="min-w-0 lg:w-44">
+              <select
+                value={voucherType}
+                onChange={handleVoucherTypeChange}
+                className="
+          w-full
+          h-11
+          px-3
+          rounded-xl
+          border
+          border-gray-200
+          dark:border-gray-700
+          bg-white
+          dark:bg-[#0b0f14]
+          text-sm
+          text-gray-700
+          dark:text-gray-200
+          outline-none
+          focus:border-deem-red
+          focus:ring-2
+          focus:ring-red-100
+          dark:focus:ring-red-950/30
+          transition
+        "
+              >
+                <option value="">All Voucher Types</option>
+                <option value="Sale">Sale</option>
+                <option value="Purchase">Purchase</option>
+              </select>
+            </div>
+
+            {/* Start Date */}
+            <div className="min-w-0 lg:w-40">
+              <input
+                type="date"
+                value={startDate}
+                onChange={handleStartDateChange}
+                title="Start Date"
+                className="
+          w-full
+          h-11
+          px-3
+          rounded-xl
+          border
+          border-gray-200
+          dark:border-gray-700
+          bg-white
+          dark:bg-[#0b0f14]
+          text-sm
+          text-gray-700
+          dark:text-gray-200
+          outline-none
+          focus:border-deem-red
+          focus:ring-2
+          focus:ring-red-100
+          dark:focus:ring-red-950/30
+          transition
+        "
+              />
+            </div>
+
+            {/* End Date */}
+            <div className="min-w-0 lg:w-40">
+              <input
+                type="date"
+                value={endDate}
+                onChange={handleEndDateChange}
+                title="End Date"
+                className="
+          w-full
+          h-11
+          px-3
+          rounded-xl
+          border
+          border-gray-200
+          dark:border-gray-700
+          bg-white
+          dark:bg-[#0b0f14]
+          text-sm
+          text-gray-700
+          dark:text-gray-200
+          outline-none
+          focus:border-deem-red
+          focus:ring-2
+          focus:ring-red-100
+          dark:focus:ring-red-950/30
+          transition
+        "
+              />
+            </div>
           </div>
         </div>
 
@@ -199,7 +330,7 @@ const Vouchers = () => {
           </div>
         ) : (
           <div className="w-full overflow-x-auto">
-            <table className="w-full min-w-[900px] text-sm">
+            <table className="w-full min-w-225 text-sm">
               <thead>
                 <tr className="bg-gray-50 dark:bg-[#0b0f14] text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                   <th className="px-2 py-2">Voucher No.</th>

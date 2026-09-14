@@ -191,7 +191,7 @@ const Voucher = () => {
           <p className={errorClass}>{errors.transactionDate}</p>
         )}
       </div>
-
+{/* 
       <div className="sm:col-span-2">
         <label className={labelClass}>
           Transaction Number{" "}
@@ -215,9 +215,33 @@ const Voucher = () => {
         {errors.transactionNumber && (
           <p className={errorClass}>{errors.transactionNumber}</p>
         )}
-      </div>
+      </div> */}
+      <div>
+  <label className={labelClass}>
+    Transaction Number{" "}
+    {transactionType !== "Cash" && requiredMark}
+  </label>
 
-      <div className="sm:col-span-2">
+  <input
+    type="text"
+    name="transactionNumber"
+    value={transactionNumber}
+    onChange={(e) => setTransactionNumber(e.target.value)}
+    placeholder="Enter transaction number"
+    disabled={transactionType === "Cash"}
+    className={`${inputClass} ${
+      transactionType === "Cash"
+        ? "bg-gray-50 dark:bg-gray-800/50 text-gray-600 dark:text-gray-400 cursor-not-allowed"
+        : ""
+    }`}
+  />
+
+  {errors.transactionNumber && (
+    <p className={errorClass}>{errors.transactionNumber}</p>
+  )}
+</div>
+
+      <div className="sm:col-span-1">
         <label className={labelClass}>
           Narration {requiredMark}
         </label>
@@ -452,24 +476,6 @@ const Voucher = () => {
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            <div>
-              <label className={labelClass}>
-                Amount
-              </label>
-
-              <input
-                type="text"
-                name="amount"
-                value={formatCurrency(selectedInvoiceData.grand_total)}
-                readOnly
-                className={readOnlyClass}
-              />
-
-              {errors.amount && (
-                <p className={errorClass}>{errors.amount}</p>
-              )}
-            </div>
-
             <div>
               <label className={labelClass}>CGST</label>
 

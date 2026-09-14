@@ -88,7 +88,33 @@ const AddNotification = () => {
     <div className="min-h-screen bg-deem-bg px-4 py-6 dark:bg-[#0b0f14] sm:px-6 lg:px-8">
       <div className="mx-auto max-w-5xl">
    
-        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center">
+          <button
+            type="button"
+            onClick={handleCancel}
+            title="Back to Notifications"
+            className="
+              flex
+              h-10
+              w-10
+              shrink-0
+              cursor-pointer
+              items-center
+              justify-center
+              rounded-xl
+              border
+              border-gray-200
+              text-gray-500
+              transition
+              hover:border-deem-red
+              hover:text-deem-red
+              dark:border-white/10
+              dark:text-white/60
+            "
+          >
+            <ArrowLeft size={18} />
+          </button>
+
           <div>
             <h1 className="text-2xl font-semibold text-deem-blue dark:text-white">
               {isEditMode ? "Edit Notification" : "Add Notification"}
@@ -100,39 +126,6 @@ const AddNotification = () => {
                 : "Create a new notification"}
             </p>
           </div>
-
-          <button
-            type="button"
-            onClick={handleCancel}
-            className="
-              inline-flex
-              w-full
-              items-center
-              justify-center
-              gap-2
-              rounded-lg
-              border
-              border-gray-200
-              bg-white
-              px-4
-              py-2.5
-              text-sm
-              font-medium
-              text-gray-600
-              transition
-              hover:border-deem-red
-              hover:text-deem-red
-              dark:border-white/10
-              dark:bg-[#11161d]
-              dark:text-white/70
-              dark:hover:border-deem-red
-              dark:hover:text-deem-red
-              sm:w-auto
-            "
-          >
-            <ArrowLeft size={17} />
-            Back
-          </button>
         </div>
  
         {error && (
@@ -151,31 +144,9 @@ const AddNotification = () => {
             <NotificationForm
               initialData={initialData}
               onSubmit={handleSubmit}
+              onCancel={handleCancel}
               loading={loading}
             />
-          )}
-
-          {!fetching && (
-            <div className="mt-5 flex justify-end border-t border-gray-100 pt-5 dark:border-white/10">
-              <button
-                type="button"
-                onClick={handleCancel}
-                className="
-                  rounded-lg
-                  px-4
-                  py-2.5
-                  text-sm
-                  font-medium
-                  text-gray-600
-                  transition
-                  hover:text-deem-red
-                  dark:text-white/60
-                  dark:hover:text-deem-red
-                "
-              >
-                Cancel
-              </button>
-            </div>
           )}
         </div>
       </div>

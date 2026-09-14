@@ -22,9 +22,7 @@ const AnnouncementTable = () => {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(
-          result.message || "Failed to fetch announcements",
-        );
+        throw new Error(result.message || "Failed to fetch announcements");
       }
 
       setAnnouncements(result.data || []);
@@ -54,19 +52,14 @@ const AnnouncementTable = () => {
     }
 
     try {
-      const response = await fetch(
-        `${ANNOUNCEMENT_API_URL}/${id}`,
-        {
-          method: "DELETE",
-        },
-      );
+      const response = await fetch(`${ANNOUNCEMENT_API_URL}/${id}`, {
+        method: "DELETE",
+      });
 
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(
-          result.message || "Failed to delete announcement",
-        );
+        throw new Error(result.message || "Failed to delete announcement");
       }
 
       setAnnouncements((prev) =>
@@ -113,15 +106,23 @@ const AnnouncementTable = () => {
           <thead>
             <tr className="border-b border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800/50">
               <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                Type
-              </th>
-
-              <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
                 Announcement
               </th>
 
               <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
                 Role
+              </th>
+
+              <th className="px-5 py-4 text-center text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                Type
+              </th>
+
+              <th className="px-5 py-4 text-center text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                Expiry Date
+              </th>
+
+              <th className="px-5 py-4 text-center text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                Expiry Time
               </th>
 
               <th className="px-5 py-4 text-center text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
@@ -140,10 +141,6 @@ const AnnouncementTable = () => {
                 key={announcement.id}
                 className="border-b border-gray-100 transition hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800/30"
               >
-                <td className="px-5 py-4 text-sm font-medium text-gray-800 dark:text-gray-200">
-                  {announcement.type || "-"}
-                </td>
-
                 <td className="max-w-105 px-5 py-4 text-sm text-gray-600 dark:text-gray-300">
                   <span className="block truncate">
                     {announcement.announce || "-"}
@@ -154,6 +151,31 @@ const AnnouncementTable = () => {
                   {announcement.role || "-"}
                 </td>
 
+                <td className="px-5 py-4 text-center text-sm text-gray-600 dark:text-gray-300">
+                  <span
+                    className={
+                      String(announcement.type).toLowerCase() === "alert"
+                        ? "font-medium text-deem-red"
+                        : "font-medium text-green-600"
+                    }
+                  >
+                    {announcement.type
+                      ? announcement.type.charAt(0).toUpperCase() +
+                        announcement.type.slice(1).toLowerCase()
+                      : "-"}
+                  </span>
+                </td>
+
+                <td className="px-5 py-4 text-center text-sm text-gray-600 dark:text-gray-300">
+                  {announcement.expiry_date || "-"}
+                </td>
+
+                <td className="px-5 py-4 text-center text-sm text-gray-600 dark:text-gray-300">
+                  {announcement.expiry_time
+                    ? String(announcement.expiry_time).slice(0, 5)
+                    : "-"}
+                </td>
+
                 <td className="px-5 py-4 text-center">
                   <span
                     className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${
@@ -162,9 +184,7 @@ const AnnouncementTable = () => {
                         : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400"
                     }`}
                   >
-                    {Number(announcement.status) === 1
-                      ? "Active"
-                      : "Inactive"}
+                    {Number(announcement.status) === 1 ? "Active" : "Inactive"}
                   </span>
                 </td>
 
@@ -172,9 +192,7 @@ const AnnouncementTable = () => {
                   <div className="flex items-center justify-center gap-2">
                     <button
                       type="button"
-                      onClick={() =>
-                        handleEdit(announcement.id)
-                      }
+                      onClick={() => handleEdit(announcement.id)}
                       title="Edit Announcement"
                       className="
                         flex
@@ -199,9 +217,7 @@ const AnnouncementTable = () => {
 
                     <button
                       type="button"
-                      onClick={() =>
-                        handleDelete(announcement.id)
-                      }
+                      onClick={() => handleDelete(announcement.id)}
                       title="Delete Announcement"
                       className="
                         flex

@@ -1,6 +1,7 @@
 import Navbar from "../components/dashboard/Navbar";
 import DashboardHeader from "../components/dashboard/DashboardHeader";
 import DashboardGrid from "../components/dashboard/DashboardGrid";
+import DashboardAnnouncements from "../components/dashboard/DashboardAnnouncements";
 
 const Dashboard = () => {
   return (
@@ -9,6 +10,7 @@ const Dashboard = () => {
 
       <main className="px-6 sm:px-8 lg:px-12 py-8">
         <DashboardHeader />
+        <DashboardAnnouncements />
         <DashboardGrid />
       </main>
     </div>

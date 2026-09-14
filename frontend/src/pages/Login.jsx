@@ -32,8 +32,8 @@ const Login = () => {
       <div className="pointer-events-none absolute inset-y-0 right-0 w-1/2 bg-[#ffe6e2]" />
  
       <div className="relative z-10 flex w-full max-w-105 flex-col items-center">
- 
-        <div className="mb-5 sm:mb-6">
+        <div className="w-full rounded-2xl bg-white p-6 shadow-[0_12px_35px_rgba(20,70,103,0.10)] sm:rounded-3xl sm:p-8">
+           <div className="mb-5 pl-18 sm:mb-6">
           <img
             src={logo}
             alt="DEEM"
@@ -50,8 +50,6 @@ const Login = () => {
             Login to continue to DEEM Portal
           </p>
         </div>
- 
-        <div className="w-full rounded-2xl bg-white p-6 shadow-[0_12px_35px_rgba(20,70,103,0.10)] sm:rounded-3xl sm:p-8">
           <form onSubmit={handleSubmit}>
          
             <div>

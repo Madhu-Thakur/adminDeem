@@ -1,5 +1,8 @@
 import { Save } from "lucide-react";
 import { useEffect, useState } from "react";
+import { ROLE_API_URL } from "../../utils/api";
+
+const ANNOUNCEMENT_TYPES = ["Message", "Alert"];
 
 const AnnouncementForm = ({
   onSubmit,
@@ -7,28 +10,70 @@ const AnnouncementForm = ({
   initialData,
   isViewMode = false,
 }) => {
+  const [roles, setRoles] = useState([]);
+
   const [formData, setFormData] = useState({
-    type: initialData?.type || "",
     announce: initialData?.announce || "",
-    role: initialData?.role || "",
+    role: initialData?.role
+      ? initialData.role.split(",").map((item) => item.trim())
+      : [],
+    type: initialData?.type
+      ? initialData.type.charAt(0).toUpperCase() +
+        initialData.type.slice(1).toLowerCase()
+      : "Message",
+    expiryDate: initialData?.expiry_date || "",
+    expiryTime: initialData?.expiry_time || "",
     status:
-      initialData?.status !== undefined
-        ? String(initialData.status)
-        : "1",
+      initialData?.status !== undefined ? String(initialData.status) : "1",
   });
 
   const [errors, setErrors] = useState({});
+ 
+  useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        const response = await fetch(ROLE_API_URL);
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          setRoles(result.data || []);
+        } else {
+          setErrors((prev) => ({
+            ...prev,
+            role: "Failed to load roles",
+          }));
+        }
+      } catch (error) {
+        console.error("Fetch Roles Error:", error);
+
+        setErrors((prev) => ({
+          ...prev,
+          role: "Failed to load roles",
+        }));
+      }
+    };
+
+    fetchRoles();
+  }, []);
 
   useEffect(() => {
     setFormData({
-      type: initialData?.type || "",
       announce: initialData?.announce || "",
-      role: initialData?.role || "",
+      role: initialData?.role
+        ? initialData.role.split(",").map((item) => item.trim())
+        : [],
+      type: initialData?.type
+        ? initialData.type.charAt(0).toUpperCase() +
+          initialData.type.slice(1).toLowerCase()
+        : "Message",
+      expiryDate: initialData?.expiry_date || "",
+      expiryTime: initialData?.expiry_time || "",
       status:
-        initialData?.status !== undefined
-          ? String(initialData.status)
-          : "1",
+        initialData?.status !== undefined ? String(initialData.status) : "1",
     });
+
+    setErrors({});
   }, [initialData]);
 
   const handleChange = (e) => {
@@ -47,19 +92,37 @@ const AnnouncementForm = ({
     }
   };
 
+  const handleRoleChange = (role) => {
+    if (isViewMode) return;
+
+    setFormData((prev) => ({
+      ...prev,
+      role: prev.role.includes(role)
+        ? prev.role.filter((item) => item !== role)
+        : [...prev.role, role],
+    }));
+
+    if (errors.role) {
+      setErrors((prev) => ({
+        ...prev,
+        role: "",
+      }));
+    }
+  };
+
   const validate = () => {
     const validationErrors = {};
-
-    if (!formData.type.trim()) {
-      validationErrors.type = "Type is required";
-    }
 
     if (!formData.announce.trim()) {
       validationErrors.announce = "Announcement is required";
     }
 
-    if (!formData.role.trim()) {
-      validationErrors.role = "Role is required";
+    if (formData.role.length === 0) {
+      validationErrors.role = "At least one role is required";
+    }
+
+    if (!formData.type) {
+      validationErrors.type = "Type is required";
     }
 
     setErrors(validationErrors);
@@ -79,9 +142,11 @@ const AnnouncementForm = ({
     }
 
     onSubmit({
-      type: formData.type.trim(),
       announce: formData.announce.trim(),
-      role: formData.role.trim(),
+      role: formData.role.join(","),
+      type: formData.type.toLowerCase(),
+      expiry_date: formData.expiryDate || null,
+      expiry_time: formData.expiryTime || null,
       status: Number(formData.status),
     });
   };
@@ -127,7 +192,7 @@ const AnnouncementForm = ({
   const textareaClass = (hasError) => {
     const classes = [
       "w-full",
-      "min-h-[160px]",
+      "min-h-[100px]",
       "px-4",
       "py-3",
       "rounded-xl",
@@ -169,66 +234,34 @@ const AnnouncementForm = ({
 
   const errorClass = "mt-1 text-xs text-deem-red";
 
-  const readOnlyClass = [
-    "w-full",
-    "h-11",
-    "px-4",
-    "rounded-xl",
-    "border",
-    "border-gray-200",
-    "dark:border-gray-700",
-    "bg-gray-50",
-    "dark:bg-gray-800/50",
-    "text-sm",
-    "text-gray-600",
-    "dark:text-gray-400",
-    "outline-none",
-  ].join(" ");
-
   return (
     <form onSubmit={handleSubmit} className="space-y-7">
       <fieldset disabled={isViewMode} className="contents">
+        {/* Role */}
         <section>
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-     
-            <div>
-              <label className={labelClass}>
-                Type <span className="text-deem-red">*</span>
+          <label className={labelClass}>
+            Role <span className="text-deem-red">*</span>
+          </label>
+
+          <div className="mb-2 flex flex-wrap items-center gap-5">
+            {roles.map((role) => (
+              <label
+                key={role.id}
+                className="flex cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-200"
+              >
+                <input
+                  type="checkbox"
+                  checked={formData.role.includes(String(role.id))}
+                  onChange={() => handleRoleChange(String(role.id))}
+                  className="h-4 w-4 accent-deem-red cursor-pointer"
+                />
+
+                <span>{role.display_name}</span>
               </label>
-
-              <input
-                type="text"
-                name="type"
-                value={formData.type}
-                onChange={handleChange}
-                placeholder="Enter announcement type"
-                className={inputClass(errors.type)}
-              />
-
-              {errors.type && (
-                <p className={errorClass}>{errors.type}</p>
-              )}
-            </div>
- 
-            <div>
-              <label className={labelClass}>
-                Role <span className="text-deem-red">*</span>
-              </label>
-
-              <input
-                type="text"
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-                placeholder="Enter role"
-                className={inputClass(errors.role)}
-              />
-
-              {errors.role && (
-                <p className={errorClass}>{errors.role}</p>
-              )}
-            </div>
+            ))}
           </div>
+
+          {errors.role && <p className={errorClass}>{errors.role}</p>}
         </section>
  
         <section>
@@ -259,32 +292,101 @@ const AnnouncementForm = ({
         </section>
  
         <section>
-          <div className="max-w-md">
-            <label className={labelClass}>Status</label>
+          <label className={labelClass}>
+            Type <span className="text-deem-red">*</span>
+          </label>
 
-            {isViewMode ? (
-              <input
-                type="text"
-                value={
-                  Number(formData.status) === 1
-                    ? "Active"
-                    : "Inactive"
-                }
-                readOnly
-                className={readOnlyClass}
-              />
-            ) : (
-              <select
-                name="status"
-                value={formData.status}
-                onChange={handleChange}
-                className={`${inputClass(false)} cursor-pointer`}
+          <div className="flex flex-wrap items-center gap-5">
+            {ANNOUNCEMENT_TYPES.map((type) => (
+              <label
+                key={type}
+                className="flex cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-200"
               >
-                <option value="1">Active</option>
-                <option value="0">Inactive</option>
-              </select>
-            )}
+                <input
+                  type="radio"
+                  name="type"
+                  value={type}
+                  checked={formData.type === type}
+                  onChange={handleChange}
+                  className="h-4 w-4"
+                  style={{
+                    accentColor: type === "Alert" ? "#eb5141" : "#16a34a",
+                  }}
+                />
+
+                <span
+                  className={
+                    type === "Alert" ? "text-deem-red" : "text-green-600"
+                  }
+                >
+                  {type}
+                </span>
+              </label>
+            ))}
           </div>
+
+          {errors.type && <p className={errorClass}>{errors.type}</p>}
+        </section>
+ 
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+          <section>
+            <label className={labelClass}>Expiry Date</label>
+
+            <input
+              type="date"
+              name="expiryDate"
+              value={formData.expiryDate}
+              onChange={handleChange}
+              className={inputClass(false)}
+            />
+          </section>
+
+          <section>
+            <label className={labelClass}>Expiry Time</label>
+
+            <input
+              type="time"
+              name="expiryTime"
+              value={formData.expiryTime}
+              onChange={handleChange}
+              className={inputClass(false)}
+            />
+          </section>
+        </div>
+ 
+        <section>
+          <label className={labelClass}>Status</label>
+
+          <button
+            type="button"
+            onClick={() =>
+              setFormData((prev) => ({
+                ...prev,
+                status: prev.status === "1" ? "0" : "1",
+              }))
+            }
+            className="flex cursor-pointer items-center gap-3"
+          >
+            <span
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
+                Number(formData.status) === 1
+                  ? "bg-green-600"
+                  : "bg-gray-300 dark:bg-gray-600"
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 rounded-full bg-white transition-transform ${
+                  Number(formData.status) === 1
+                    ? "translate-x-6"
+                    : "translate-x-1"
+                }`}
+              />
+            </span>
+
+            <span className="text-sm text-gray-700 dark:text-gray-200">
+              {Number(formData.status) === 1 ? "Active" : "Inactive"}
+            </span>
+          </button>
         </section>
       </fieldset>
  

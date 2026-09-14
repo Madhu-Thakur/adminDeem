@@ -1,3 +1,4 @@
+ 
 import { ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -105,7 +106,6 @@ const AddAnnouncement = () => {
 
   return (
     <div className="space-y-6">
- 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
         <button
           type="button"
@@ -148,14 +148,12 @@ const AddAnnouncement = () => {
         </div>
       </div>
 
-      {/* API Error */}
       {error && (
         <div className="rounded-xl border border-deem-red/20 bg-red-50 px-4 py-3 text-sm text-deem-red">
           {error}
         </div>
       )}
 
-     
       <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-[#11161c] sm:p-7">
         <AnnouncementForm
           initialData={initialData}

@@ -149,7 +149,7 @@ const NotificationTable = () => {
                 <span
                   className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
                     Number(notification.status) === 1
-                      ? "bg-deem-blue/10 text-deem-blue"
+                      ? "bg-green-100 text-green-700 dark:bg-green-500/10 dark:text-green-400"
                       : "bg-gray-100 text-gray-500 dark:bg-white/10 dark:text-white/50"
                   }`}
                 >
